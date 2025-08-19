@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Freight';
+  src: url('/fonts/freight/Freight-BigBook.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BasisGrotesque';
+  src: url('/fonts/basisgrotesque/BasisGrotesquePro-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BasisGrotesque';
+  src: url('/fonts/basisgrotesque/BasisGrotesquePro-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BasisGrotesque';
+  src: url('/fonts/basisgrotesque/BasisGrotesquePro-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BasisGrotesque';
+  src: url('/fonts/basisgrotesque/BasisGrotesquePro-OffWhite.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: 0 0% 10%; /* #1a1a1a dark black */
+  --foreground: 0 0% 95%; /* #f2f2f2 off-white*/
+
+  --primary: 0 0% 10%; /* #1a1a1a dark black */
+  --primary-foreground: 0 0% 95%; /* #f2f2f2 off-white*/
+
+  --secondary: 0 0% 95%; /* #f2f2f2 off-white*/
+  --secondary-foreground: 0 0% 10%; /* #1a1a1a dark black */
+
+  --accent: 0 0% 20%; /* #333333 lighter black */
+  --accent-foreground: 0 0% 95%; /* #f2f2f2 off-white*/
+
+  --muted: 0 0% 15%; /* #262626 muted black */
+  --muted-foreground: 0 0% 60%; /* #999999 gray */
+
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 20%; /* #333333 lighter black */
+  --input: 0 0% 10%; /* #1a1a1a dark black */
+  --ring: 0 0% 10%; /* #1a1a1a dark black */
+
+  --radius: 0.5rem;
+}
+
+body {
+  @apply bg-background text-foreground;
+  font-family: 'BasisGrotesque', sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Freight', serif;
+  font-weight: normal;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+@layer components {
+  .bg-gradient-dark {
+    background: linear-gradient(to bottom, rgba(26, 26, 26, 0.9), rgba(26, 26, 26, 1));
+  }
+
+  .hero-container {
+    @apply relative min-h-[90vh] flex flex-col justify-center items-center text-center py-24;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-title {
+    @apply text-5xl md:text-7xl lg:text-8xl font-normal text-secondary mb-4;
+  }
+
+  .hero-subtitle {
+    @apply text-base md:text-lg lg:text-xl text-secondary uppercase tracking-wider font-light;
+  }
+
+  .portfolio-section {
+    @apply py-16;
+  }
+
+  .portfolio-heading {
+    @apply text-3xl md:text-4xl lg:text-5xl mb-8 font-freight;
+  }
+
+  .portfolio-subheading {
+    @apply text-xl md:text-2xl mb-6 font-freight;
+  }
+
+  .portfolio-text {
+    @apply text-base leading-relaxed mb-6;
+  }
+
+  .skill-tag {
+    @apply inline-block bg-accent text-secondary px-3 py-1 rounded-full text-sm mr-2 mb-2;
+  }
+
+  .project-card {
+    @apply bg-muted p-6 rounded-md mb-6;
+  }
+}
+
+body {
+  user-select: none; /* Prevent text selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
