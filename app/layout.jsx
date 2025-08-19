@@ -1,37 +1,41 @@
 import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-
+import Script from 'next/script';   // ✅ Import Script
 
 export const metadata = {
   title: 'Mohammad Shafee ur Rahaman - Portfolio',
-  description: "Creative Developer, AI Enthusiast, and Data Science Engineer focusing on emotional intelligence in machines",
+  description:
+    'Creative Developer, AI Enthusiast, and Data Science Engineer focusing on emotional intelligence in machines',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-QS7GP95WQB"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', 'G-QS7GP95WQB');
-        </script>
+        {/* ✅ Google Analytics with Next.js */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-QS7GP95WQB"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-QS7GP95WQB');
+          `}
+        </Script>
       </head>
       <body>
         <Navbar />
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
         <Footer />
       </body>
     </html>
   );
 }
+
 
 // useEffect(() => {
 //   const preventCopy = (e) => e.preventDefault();
