@@ -1,7 +1,8 @@
 import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import Script from 'next/script';   // ✅ Import Script
+import Script from 'next/script';   // ✅ Google Analytics
+import { SpeedInsights } from '@vercel/speed-insights/next';  // ✅ Vercel Speed Insights
 
 export const metadata = {
   title: 'Mohammad Shafee ur Rahaman - Portfolio',
@@ -31,10 +32,14 @@ export default function RootLayout({ children }) {
         <Navbar />
         <main>{children}</main>
         <Footer />
+
+        {/* ✅ Add Vercel Speed Insights (free) */}
+        <SpeedInsights />
       </body>
     </html>
   );
 }
+
 
 
 // useEffect(() => {
