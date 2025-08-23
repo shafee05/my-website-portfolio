@@ -147,20 +147,82 @@ export default function AssetPage() {
           }`}
         >
           <div className="container mx-auto px-4">
-            <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-8 text-center font-bold tracking-wider">
-              Vision – XAFAM
-            </h2>
-            <p className="text-xl italic mb-6 text-center">
-              Where Exclusivity Meets Innovation
-            </p>
-            <p className="text-lg leading-relaxed mb-6">
-              XAFAM is a premium lifestyle brand crafted by Shafee, Md Mehboob,
-              and Arman Rai, designed for Gen Z and those who dare to stand out.
-              Our journey begins with high-quality hoodies—normal and premium
-              collections with distinctive logos—setting the stage for a global
-              fashion revolution.
-            </p>
+            {/* Royal Pattern Background */}
+            <div className="absolute inset-0 opacity-10">
+              <Image
+                src="/images/xafam2.jpg"
+                alt="Royal Pattern"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
+              {/* Left: Text Content */}
+              <div>
+                <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-8 text-center font-bold tracking-wider">
+                  Vision – XAFAM
+                </h2>
+                <p className="text-xl italic mb-6 text-center">
+                  Where Exclusivity Meets Innovation
+                </p>
+                <p className="text-lg leading-relaxed mb-6">
+                  XAFAM is a premium lifestyle brand crafted by Shafee, Md
+                  Mehboob, and Arman Rai, designed for Gen Z and those who dare
+                  to stand out. Our journey begins with high-quality
+                  hoodies—normal and premium collections with distinctive
+                  logos—setting the stage for a global fashion revolution.
+                </p>
+                <p className="text-lg leading-relaxed mb-8">
+                  Our vision is to inspire and unite a community of creators,
+                  influencers, and visionaries. From sustainable fashion to
+                  future tech-driven sub-brands, XAFAM is your invitation to
+                  join a legacy of style and impact. Pre-order now, share your
+                  vision, or invest in our future—together, we’ll redefine what’s
+                  possible.
+                </p>
+              </div>
+
+              {/* Right: XAFAM Logo */}
+              <div className="relative flex items-center justify-center bg-silver-500/10 rounded-lg shadow-lg">
+                <div className="relative w-96 h-96">
+                  <Image
+                    src="/svg/xafamlogo.svg"
+                    alt="XAFAM Logo"
+                    fill
+                    className="object-contain opacity-90 filter drop-shadow-md"
+                  />
+                </div>
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-lg animate-pulse">
+                  Coming Soon
+                </div>
+              </div>
+            </div>
           </div>
+          <style jsx>{`
+            @keyframes pulse {
+              0% {
+                opacity: 0.6;
+              }
+              50% {
+                opacity: 1;
+              }
+              100% {
+                opacity: 0.6;
+              }
+            }
+            .animate-pulse {
+              animation: pulse 2s ease-in-out infinite;
+            }
+            .border-silver-500 {
+              border-color: #c0c0c0;
+            }
+            .bg-silver-500\/10 {
+              background-color: rgba(192, 192, 192, 0.1);
+            }
+            .shadow-silver {
+              box-shadow: 0 0 20px rgba(192, 192, 192, 0.3);
+            }
+          `}</style>
         </section>
 
         {/* Meet the Visionaries Section */}
@@ -188,6 +250,14 @@ export default function AssetPage() {
                 <p className="text-lg font-medium text-silver-500 mb-4">
                   CEO & Brand/Marketing Head
                 </p>
+                {/* <p className="text-sm mb-4">
+                  B.Tech in Computer Science - Data Science
+                </p>
+                <p className="text-sm leading-relaxed">
+                  Drives XAFAM’s vision, sourcing top manufacturers, designing
+                  innovative product concepts, and leading marketing and
+                  collaborations to connect with a global audience.
+                </p> */}
               </div>
 
               {/* Md Mehboob Card */}
@@ -202,8 +272,14 @@ export default function AssetPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Md Mehboob</h3>
                 <p className="text-lg font-medium text-silver-500 mb-4">
-                  Operations & Logistics Head
+                  Co-Founder & Operations and Logistics Head
                 </p>
+                {/* <p className="text-sm mb-4">Intermediate & Degree</p>
+                <p className="text-sm leading-relaxed">
+                  Ensures seamless operations, managing inventory, orders,
+                  packaging, and courier tracking to keep XAFAM’s production on
+                  schedule for every drop.
+                </p> */}
               </div>
 
               {/* Arman Rai Card */}
@@ -218,11 +294,30 @@ export default function AssetPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Arman Rai</h3>
                 <p className="text-lg font-medium text-silver-500 mb-4">
-                  Creative Head
+                  Co-Founder & Creative Head
                 </p>
+                {/* <p className="text-sm mb-4">
+                  Bachelor’s in Computer Applications
+                </p>
+                <p className="text-sm leading-relaxed">
+                  Crafts XAFAM’s stunning visuals, producing product
+                  photos/videos and managing the brand’s Instagram aesthetic to
+                  captivate our audience.
+                </p> */}
               </div>
             </div>
           </div>
+          <style jsx>{`
+            .border-silver-500 {
+              border-color: #c0c0c0;
+            }
+            .text-silver-500 {
+              color: #c0c0c0;
+            }
+            .shadow-silver {
+              box-shadow: 0 0 10px rgba(192, 192, 192, 0.3);
+            }
+          `}</style>
         </section>
       </div>
     </div>
