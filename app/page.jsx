@@ -30,11 +30,11 @@ export default function Home() {
             Explore My Journey →
           </Link>
           <a
-            href="/files/shafee_resume.pdf"
-            download="Mohammad_Shafee_Resume.pdf"
+            href="/files/shafee_CV.pdf"
+            download="Mohammad_Shafee_CV.pdf"
             className="inline-block bg-red-600 text-white py-2 px-6 rounded-lg font-medium shadow-lg hover:bg-red-700 transition-all duration-300 flex items-center space-x-2"
           >
-            <span>Download My Resume</span>
+            <span>Download My CV</span>
             <span>↓</span>
           </a>
         </div>
