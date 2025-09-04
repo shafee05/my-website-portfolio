@@ -1,3 +1,4 @@
+// tree-diagram.jsx
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -52,13 +53,13 @@ export default function TreeDiagram({ title }) {
   const titleLines = title ? title.split('<br/>') : ['Unleashing the power of', 'academia to drive business', 'excellence'];
 
   return (
-    <section ref={sectionRef} className="py-20 bg-altermind-off-white text-altermind-dark-green">
+    <section ref={sectionRef} className="py-20 bg-altermind-off-white text-altermind-dark-green" aria-labelledby="tree-title">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="md:flex md:gap-12">
             {/* Title */}
             <div className="md:w-1/3 mb-12 md:mb-0">
-              <h2 className="font-freight text-3xl md:text-4xl lg:text-5xl lg:leading-tight">
+              <h2 id="tree-title" className="font-freight text-3xl md:text-4xl lg:text-5xl lg:leading-tight">
                 {titleLines.map((line, index) => (
                   <div
                     key={index}
@@ -82,18 +83,22 @@ export default function TreeDiagram({ title }) {
                   <div className="relative w-48 h-48">
                     <Image
                       src="/svg/tree.svg"
-                      alt="Tree diagram"
+                      alt="Tree Diagram Illustration"
                       fill
                       className="object-contain"
+                      loading="lazy"
                     />
                   </div>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex justify-center space-x-12 mb-6">
+                <div className="flex justify-center space-x-12 mb-6" role="tablist"> {/* Accessibility: tablist */}
                   <button
                     className={`pb-2 relative ${activeTab === 0 ? 'font-medium' : 'opacity-70'}`}
                     onClick={() => setActiveTab(0)}
+                    role="tab"
+                    aria-selected={activeTab === 0}
+                    aria-controls="client-panel"
                   >
                     What our clients get
                     {activeTab === 0 && (
@@ -103,6 +108,9 @@ export default function TreeDiagram({ title }) {
                   <button
                     className={`pb-2 relative ${activeTab === 1 ? 'font-medium' : 'opacity-70'}`}
                     onClick={() => setActiveTab(1)}
+                    role="tab"
+                    aria-selected={activeTab === 1}
+                    aria-controls="expert-panel"
                   >
                     What our experts get
                     {activeTab === 1 && (
@@ -115,6 +123,8 @@ export default function TreeDiagram({ title }) {
                 <div className="relative overflow-hidden">
                   {/* Client Content */}
                   <div
+                    id="client-panel"
+                    role="tabpanel"
                     className={`transition-all duration-500 transform ${
                       activeTab === 0 ? 'translate-x-0 opacity-100' : 'absolute translate-x-full opacity-0'
                     }`}
@@ -137,6 +147,8 @@ export default function TreeDiagram({ title }) {
 
                   {/* Expert Content */}
                   <div
+                    id="expert-panel"
+                    role="tabpanel"
                     className={`transition-all duration-500 transform ${
                       activeTab === 1 ? 'translate-x-0 opacity-100' : 'absolute translate-x-full opacity-0'
                     }`}
