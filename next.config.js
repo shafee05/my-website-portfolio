@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // distDir: 'out', 
-  // output: 'export', 
   images: {
-    // unoptimized: true,
     domains: [
       "source.unsplash.com",
       "images.unsplash.com",
@@ -40,10 +37,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // i18n: {
-  //   locales: ['en', 'es', 'zh', 'ur', 'de'],
-  //   defaultLocale: 'en',
-  // },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,

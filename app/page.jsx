@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Hero from '@/components/sections/hero';
-import SkillsMarquee from "@/components/sections/SkillsMarquee";
-import ContentSection from '@/components/sections/content-section';
 import Image from 'next/image';
 import Link from 'next/link';
+
+const SkillsMarquee = dynamic(() => import("@/components/sections/SkillsMarquee"), { ssr: false });
+const ContentSection = dynamic(() => import("@/components/sections/content-section"), { ssr: false });
 
 export default function Home() {
   const [showVideo, setShowVideo] = useState(false);
@@ -302,89 +304,81 @@ export default function Home() {
       </section>
 
       {/* Life Coaching Section with Premium Card Design */}
-      <section id="coaching" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white">
+     {/* ===== LIFE COACHING SECTION (replace your old #coaching block with this) ===== */}
+<section id="coaching" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white">
   <div className="container mx-auto px-6">
-    <div className="max-w-6xl mx-auto">
-      <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-12 text-center font-bold animate-fadeInUp text-white">
-        Life Coaching & Personal Growth Guidance
+    <div className="max-w-6xl mx-auto relative">
+
+      {/* Subtle highlight badge above the section */}
+      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white/5 text-white text-sm px-3 py-1 rounded-full shadow-md border border-white/10">
+        Featured • Life Coaching
+      </div>
+
+      {/* Title in plain white */}
+      <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-6 text-center font-bold text-white">
+        Life Coaching &amp; Personal Growth Guidance
       </h2>
 
-      <p className="text-lg text-center mb-16 max-w-3xl mx-auto text-silver-500 leading-relaxed">
-        Every person holds within them a story that longs to be lived fully.  
-        As a certified coach, I help individuals uncover that story — guiding them to find clarity in their choices, courage in their challenges, and calm in their storms.  
-        My role is not to provide answers, but to awaken the answers already within you.  
+      <p className="text-lg text-center mb-12 max-w-3xl mx-auto text-silver-500 leading-relaxed">
+        Every person holds within them a story that longs to be lived fully.
+        As a certified coach, I help individuals uncover that story — guiding them to find clarity in their choices, courage in their challenges, and calm in their storms.
+        My role is not to provide answers, but to awaken the answers already within you.
       </p>
 
+      {/* Cards */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {/* Card 1: Life Skills */}
-        <div className="bg-blue-950 p-6 rounded-lg shadow-silver transition-all duration-300 hover:shadow-royal-blue hover:scale-105">
+        <div className="bg-blue-950 p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105">
           <h3 className="text-xl font-semibold text-royal-blue mb-4">Life Skills Coaching</h3>
-          <p className="text-silver-500 mb-6">
-            I equip individuals with the confidence and skills to navigate challenges with resilience — 
-            helping them craft habits and mindsets that lead to a balanced and fulfilling life.
+          <p className="text-silver-500">
+            I equip individuals with the confidence and skills to navigate challenges with resilience — helping them craft habits and mindsets for a balanced, fulfilling life.
           </p>
         </div>
 
-        {/* Card 2: Career Development */}
-        <div className="bg-blue-950 p-6 rounded-lg shadow-silver transition-all duration-300 hover:shadow-royal-blue hover:scale-105">
+        <div className="bg-blue-950 p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105">
           <h3 className="text-xl font-semibold text-royal-blue mb-4">Career Development Guidance</h3>
-          <p className="text-silver-500 mb-6">
-            Beyond resumes and job titles, I guide individuals toward purposeful careers — 
-            aligning their strengths, values, and vision with opportunities that move them closer to the life they aspire to live.
+          <p className="text-silver-500">
+            Beyond resumes and job titles, I guide individuals toward purposeful careers—aligning strengths, values, and vision with real opportunities.
           </p>
         </div>
 
-        {/* Card 3: Emotional Support */}
-        <div className="bg-blue-950 p-6 rounded-lg shadow-silver transition-all duration-300 hover:shadow-royal-blue hover:scale-105">
+        <div className="bg-blue-950 p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105">
           <h3 className="text-xl font-semibold text-royal-blue mb-4">Emotional Support Coaching</h3>
-          <p className="text-silver-500 mb-6">
-            In moments of doubt, stress, or silence, I provide a safe space for reflection and renewal — 
-            fostering strength, self-awareness, and a compassionate mindset that helps you move forward with calm clarity.
+          <p className="text-silver-500">
+            In moments of doubt or stress, I provide a calm space for reflection—fostering self-awareness and a compassionate mindset to move forward.
           </p>
         </div>
 
-        {/* Card 4: Personal Growth */}
-        <div className="bg-blue-950 p-6 rounded-lg shadow-silver transition-all duration-300 hover:shadow-royal-blue hover:scale-105">
+        <div className="bg-blue-950 p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105">
           <h3 className="text-xl font-semibold text-royal-blue mb-4">Personal Growth Coaching</h3>
-          <p className="text-silver-500 mb-6">
-            True growth begins when we step beyond comfort.  
-            I guide individuals on journeys of self-discovery, helping them design sustainable changes that nurture confidence, purpose, and authentic transformation.
+          <p className="text-silver-500">
+            I guide journeys of self-discovery and sustainable change—nurturing confidence, purpose, and authentic transformation.
           </p>
         </div>
       </div>
 
+      {/* CTA */}
       <div className="flex justify-center mt-12">
-        <a
-          href="mailto:md.shafee05s@gmail.com?subject=Life%20Coaching%20Session%20Inquiry"
-          className="inline-block bg-royal-blue text-white py-3 px-8 rounded-md font-medium transition-colors hover:bg-silver-300 hover:text-black"
-        >
-          Begin Your Journey Today
-        </a>
-      </div>
+  <Link
+    href="/coaching"
+    className="inline-block bg-gradient-to-r from-royal-blue to-blue-600 text-white py-4 px-10 rounded-lg font-freight text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-glow animate-pulse"
+  >
+    Start Your Transformation Now
+  </Link>
+</div>
     </div>
   </div>
 
   <style jsx>{`
-    .shadow-silver {
-      box-shadow: 0 0 20px rgba(192, 192, 192, 0.3);
-    }
-    .shadow-royal-blue {
-      box-shadow: 0 0 20px rgba(65, 105, 225, 0.3);
-    }
     .text-royal-blue {
       color: #4169E1;
     }
     .text-silver-500 {
       color: #A0A0A0;
     }
-    .bg-royal-blue {
-      background-color: #4169E1;
-    }
-    .bg-silver-300 {
-      background-color: #C0C0C0;
-    }
   `}</style>
 </section>
+{/* ===== end life coaching section ===== */}
+
 
       {/* Projects Section with Background Image Cards */}
 <section id="projects" className="py-24 bg-gradient-to-r from-gray-900 to-blue-950 text-white">

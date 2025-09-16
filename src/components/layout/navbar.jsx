@@ -4,17 +4,20 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-// import GoogleTranslate from '@/components/layout/GoogleTranslate'; 
-const NavItem = ({ href, children, isActive }) => (
-  <li className="navbar-item">
-    <Link
-      href={href}
-      className={`block py-2 px-4 text-secondary hover:opacity-80 transition-opacity ${isActive ? 'font-medium' : ''}`}
-    >
-      {children}
-    </Link>
-  </li>
-);
+import React from 'react';
+
+const NavItem = React.memo(function NavItem({ href, children, isActive }) {
+  return (
+    <li className="navbar-item">
+      <Link
+        href={href}
+        className={`block py-2 px-4 text-secondary hover:opacity-80 transition-opacity ${isActive ? 'font-medium' : ''}`}
+      >
+        {children}
+      </Link>
+    </li>
+  );
+});
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,6 +27,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/portfolio', label: 'Portfolio' },
+    { href: '/coaching', label: 'Life Coaching' },
     { href: '/asset', label: 'Vision' },
     { href: '/the-team', label: 'Milestones' },
   ];
@@ -38,11 +42,7 @@ export function Navbar() {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    if (!isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
+    document.body.style.overflow = isMenuOpen ? 'auto' : 'hidden';
   };
 
   return (
@@ -122,10 +122,6 @@ export function Navbar() {
                 />
               </div>
             </a>
-
-            {/* <div className="ml-4"> 
-              <GoogleTranslate />
-            </div> */}
           </div>
         </nav>
 
@@ -197,16 +193,15 @@ export function Navbar() {
               </a>
 
               <a href="https://x.com/shafee_05" target="_blank" rel="noopener noreferrer" className="text-secondary">
-              <div className="relative w-6 h-6">
-                <Image
-                  src="/svg/x.svg"
-                  alt="X (Twitter)"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            </a>
-
+                <div className="relative w-6 h-6">
+                  <Image
+                    src="/svg/x.svg"
+                    alt="X (Twitter)"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </a>
             </div>
           </div>
         </div>

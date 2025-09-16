@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Hero from "@/components/sections/hero";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
+
+const Hero = dynamic(() => import("@/components/sections/hero"), { ssr: false });
 
 export default function AssetPage() {
   const [locked, setLocked] = useState(true);

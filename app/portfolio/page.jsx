@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
+
+const Hero = dynamic(() => import("@/components/sections/hero"), { ssr: false });
 
 export default function PortfolioPage() {
   const [isLoaded, setIsLoaded] = useState(false);

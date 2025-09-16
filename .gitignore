@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -12,6 +10,9 @@
 
 # testing
 /coverage
+cypress/
+playwright/
+jest/
 
 # next.js
 /.next/
@@ -19,10 +20,17 @@
 
 # production
 /build
+dist/
+public/build/
 
 # misc
 .DS_Store
 *.pem
+*.log
+*.tmp
+*.bak
+*.swp
+*~
 
 # debug
 npm-debug.log*
@@ -30,12 +38,59 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+*.key
+*.cert
+*.p12
 
 # vercel
 .vercel
+vercel.json
+.vercelignore
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local development and editor files
+.vscode/
+.idea/
+*.sublime-*
+*.code-workspace
+
+# cache files
+.cache/
+.eslintcache
+.stylelintcache
+prettier-cache
+
+# OS-specific files
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+# Vercel-specific (additional)
+.vercelignore
+
+# Next.js-specific
+.next/cache/
+.next/static/chunks/
+.next/static/media/
+
+# Local dev files
+*.local
+*.dev
+*.test
+
+# Backup files
+*~
+*.bak
+
+# Database dumps (if you add one later)
+*.sql
+*.dump

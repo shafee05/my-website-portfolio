@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'aos/dist/aos.css';
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 @font-face {
   font-family: 'Freight';
@@ -125,11 +126,4 @@ h1, h2, h3, h4, h5, h6 {
   .project-card {
     @apply bg-muted p-6 rounded-md mb-6;
   }
-}
-
-body {
-  user-select: none; /* Prevent text selection */
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 }

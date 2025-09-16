@@ -1,6 +1,7 @@
 import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
+import 'aos/dist/aos.css';
 import Script from 'next/script';   // ✅ Google Analytics
 import { SpeedInsights } from "@vercel/speed-insights/next";  // ✅ Vercel Speed Insights
 
@@ -39,15 +40,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
-
-
-// useEffect(() => {
-//   const preventCopy = (e) => e.preventDefault();
-//   document.addEventListener('contextmenu', preventCopy); // Disable right-click
-//   document.addEventListener('dragstart', preventCopy); // Disable drag
-//   return () => {
-//     document.removeEventListener('contextmenu', preventCopy);
-//     document.removeEventListener('dragstart', preventCopy);
-//   };
-// }, []);
