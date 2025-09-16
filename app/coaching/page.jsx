@@ -1,11 +1,17 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { supabase } from "../lib/supabaseClient";
+import dynamic from 'next/dynamic';
+
+// Dynamically import without SSR
+const CoachingPage = dynamic(() => import('./CoachingPage'), { ssr: false });
+
+export default function Page() {
+  return <CoachingPage />;
+}
 
 // === Constants ===
 const PRICE_INR = 99;
@@ -596,7 +602,7 @@ export default function CoachingPage() {
         </div>
 
         {/* Sticky CTA */}
-        {/* <div
+        <div
           className={`fixed bottom-5 right-5 z-50 transition-all duration-500 transform ${
             showStickyCTA ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none'
           }`}
@@ -613,7 +619,7 @@ export default function CoachingPage() {
             <i data-feather="star" className="w-5 h-5"></i>
             Book Now
           </button>
-        </div> */}
+        </div>
       </section>
 
       <PaymentModal
