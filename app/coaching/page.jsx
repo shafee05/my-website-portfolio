@@ -594,7 +594,7 @@ export default function CoachingPage() {
         </div>
 
         {/* Sticky CTA */}
-        <div
+        {/* <div
           className={`fixed bottom-5 right-5 z-50 transition-all duration-500 transform ${
             showStickyCTA ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none'
           }`}
@@ -607,13 +607,13 @@ export default function CoachingPage() {
               fontWeight: 'bold',
             }}
           >
+
             <i data-feather="star" className="w-5 h-5"></i>
             Book Now
           </button>
-        </div>
+        </div> */}
       </section>
 
-      {/* Modal */}
       <PaymentModal
         isOpen={isPaymentModalOpen}
         onClose={closePaymentModal}
