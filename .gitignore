@@ -15,6 +15,7 @@ playwright/
 jest/
 
 # next.js
+/.next
 /.next/
 /out/
 
@@ -39,8 +40,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files
-.env*
+.env
 .env.local
+.env.*.local
 .env.development.local
 .env.production.local
 .env.test.local
