@@ -36,17 +36,19 @@ export async function POST(request) {
       });
     }
 
-    console.log('NEXT_PUBLIC_RAZORPAY_KEY_ID:', process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
-    console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET);
+    console.log('Environment Variables:', {
+      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET ? '[REDACTED]' : 'undefined',
+    });
+
+    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      throw new Error('Razorpay configuration is missing');
+    }
 
     const razorpay = new Razorpay({
       key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
-
-    if (!process.env.RAZORPAY_KEY_SECRET) {
-      throw new Error('RAZORPAY_KEY_SECRET is not defined');
-    }
 
     const order = await razorpay.orders.create({
       amount: amount,
@@ -58,15 +60,20 @@ export async function POST(request) {
     return new Response(JSON.stringify({ orderId: order.id }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
-      });
-    } catch (error) {
-      console.error('Error creating Razorpay order:', error.message, error.stack);
-      return new Response(
-        JSON.stringify({ error: `Failed to create order: ${error.message}` }),
-        {
-          status: error.statusCode || 500,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
+    });
+  } catch (error) {
+    console.error('Error creating Razorpay order:', {
+      message: error.message,
+      stack: error.stack,
+      statusCode: error.statusCode,
+      razorpayError: error.response ? error.response.data : null,
+    });
+    return new Response(
+      JSON.stringify({ error: `Failed to create order: ${error.message}` }),
+      {
+        status: error.statusCode || 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
+}

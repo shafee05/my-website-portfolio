@@ -96,3 +96,5 @@ ehthumbs.db
 # Database dumps (if you add one later)
 *.sql
 *.dump
+
+.vercel

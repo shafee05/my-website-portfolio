@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
 
-
 // === Constants ===
 const PRICE_INR = 99;
-const PRICE_IN_PAISE = PRICE_INR * 100;
 const BOOKING_DURATION_MS = 86_400_000; // 24 hours
+const PAYMENT_LINK = 'https://razorpay.me/@mohammadshafeeurrahaman'; // ✅ No spaces
 
 /**
  * Save booking to Supabase
@@ -221,25 +220,7 @@ export default function CoachingPage() {
   });
   const [bookedSlots, setBookedSlots] = useState({});
   const [formErrors, setFormErrors] = useState({});
-
-  // Lazy load Razorpay
-  const loadAndInitRazorpay = () => {
-    return new Promise((resolve, reject) => {
-      if (typeof window === 'undefined') return reject(new Error('No window'));
-
-      if (window.Razorpay) return resolve();
-
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js'; // ✅ Fixed: removed extra space
-      script.id = 'razorpay-script';
-      script.async = true;
-
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Razorpay SDK'));
-
-      document.body.appendChild(script);
-    });
-  };
+  const paymentSectionRef = useRef(null);
 
   const openPaymentModal = () => {
     setIsPaymentModalOpen(true);
@@ -260,63 +241,29 @@ export default function CoachingPage() {
     return Object.keys(errors).length === 0;
   };
 
+  // ✅ This is called from the MODAL'S "Pay Now" button
   const handlePay = async () => {
     if (!validateForm()) return;
 
-    try {
-      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID)
-        throw new Error('NEXT_PUBLIC_RAZORPAY_KEY_ID missing');
+    const slotNumber = formData.session.startsWith('6:00') ? 1 : 
+                      formData.session.startsWith('7:20') ? 2 : 3;
+    
+    const bookingSuccess = await saveBooking(formData);
+    if (bookingSuccess) {
+      setBookedSlots(prev => ({ ...prev, [slotNumber]: true }));
+      closePaymentModal();
+      // ✅ Redirect to YOUR Razorpay.me page
+      window.open(PAYMENT_LINK, '_blank', 'noopener,noreferrer');
+    } else {
+      alert('Failed to save booking. Please try again or contact support.');
+    }
+  };
 
-      await loadAndInitRazorpay();
-
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          slot: formData.session.startsWith('6:00') ? 1 : formData.session.startsWith('7:20') ? 2 : 3,
-          amount: PRICE_IN_PAISE,
-          name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-        }),
-      });
-
-      if (!response.ok) throw new Error('API request failed');
-      const { orderId } = await response.json();
-
-      const slotNumber = formData.session.startsWith('6:00') ? 1 : formData.session.startsWith('7:20') ? 2 : 3;
-
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: PRICE_IN_PAISE,
-        currency: 'INR',
-        name: 'Mohammad Shafee Life Coaching',
-        description: `Life Coaching • ${formData.session}`,
-        order_id: orderId,
-        handler: async () => {
-          const success = await saveBooking(formData);
-          if (success) {
-            setBookedSlots(prev => ({ ...prev, [slotNumber]: true }));
-            closePaymentModal();
-            alert('🎉 Success! Your session is confirmed for 24 hours.');
-          } else {
-            alert('⚠️ Booking saved but failed to confirm. Please contact support.');
-          }
-        },
-        prefill: {
-          name: formData.fullName,
-          email: formData.email,
-          contact: formData.phone,
-        },
-        theme: { color: '#D4AF37' },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (res) => alert('❌ Failed: ' + res.error.description));
-      rzp.open();
-    } catch (error) {
-      console.error('Payment error:', error);
-      alert('Error: ' + error.message);
+  // Scroll to payment section and set session
+  const scrollToPayment = (sessionTime) => {
+    setFormData(prev => ({ ...prev, session: sessionTime }));
+    if (paymentSectionRef.current) {
+      paymentSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -394,8 +341,8 @@ export default function CoachingPage() {
                   className="rounded-full object-cover border-4 border-gold-300 shadow-2xl"
                 />
                 <div className="absolute -bottom-4 -right-4 bg-gradient-to-br from-yellow-400 to-gold-500 rounded-full w-16 h-16 flex items-center justify-center shadow-lg">
-  <i data-feather="award" className="text-white w-8 h-8"></i>
-</div>
+                  <i data-feather="award" className="text-white w-8 h-8"></i>
+                </div>
               </div>
             </div>
             <div className="md:w-2/3">
@@ -458,10 +405,7 @@ export default function CoachingPage() {
                   key={id}
                   session={{ id, ...sessions[id] }}
                   bookedSlots={bookedSlots}
-                  onSessionClick={(time) => {
-                    setFormData(p => ({ ...p, session: time }));
-                    openPaymentModal();
-                  }}
+                  onSessionClick={scrollToPayment}
                 />
               );
             })}
@@ -538,7 +482,7 @@ export default function CoachingPage() {
       </section>
 
       {/* Payment */}
-      <section id="payment" className="py-28 relative overflow-hidden">
+      <section id="payment" ref={paymentSectionRef} className="py-28 relative overflow-hidden">
         <div className="absolute inset-0 bg-gray-950"></div>
         <div className="absolute inset-0 opacity-15">
           <div className="w-full h-full bg-gradient-radial from-gold-300/30 via-transparent to-transparent"></div>
@@ -576,6 +520,7 @@ export default function CoachingPage() {
                     Tools for lasting growth
                   </li>
                 </ul>
+                {/* ✅ THIS NOW OPENS THE MODAL */}
                 <button
                   onClick={openPaymentModal}
                   className="w-full bg-black/40 backdrop-blur-md hover:bg-black/50 text-yellow-50 py-5 px-6 rounded-2xl font-bold text-lg shadow-glow transform transition-all duration-300 flex items-center justify-center gap-3"
@@ -637,6 +582,13 @@ export default function CoachingPage() {
         }
         .drop-shadow-lg {
           text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
