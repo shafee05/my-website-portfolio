@@ -3,69 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { supabase } from '../../lib/supabaseClient';
 
 // === Constants ===
 const PRICE_INR = 99;
-const BOOKING_DURATION_MS = 86_400_000; // 24 hours
 const PAYMENT_LINK = 'https://razorpay.me/@mohammadshafeeurrahaman'; // ✅ No spaces
-
-/**
- * Save booking to Supabase
- */
-const saveBooking = async (formData) => {
-  const bookedUntil = new Date(Date.now() + BOOKING_DURATION_MS).toISOString();
-
-  const { data, error } = await supabase.from("bookings").insert([
-    {
-      full_name: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      slot_time: formData.session,
-      booked_until: bookedUntil,
-    },
-  ]);
-
-  if (error) {
-    console.error("❌ Supabase insert error:", error.message);
-    return false;
-  }
-
-  console.log("✅ Booking saved:", data);
-  return true;
-};
-
-/**
- * Fetch only currently active bookings
- */
-const fetchBookedSlots = async (setBookedSlots) => {
-  const { data, error } = await supabase
-    .from("bookings")
-    .select("slot_time, booked_until");
-
-  if (error) {
-    console.error("❌ Error fetching bookings:", error);
-    return;
-  }
-
-  const slotsFromDB = {};
-  const now = new Date();
-
-  data.forEach((record) => {
-    if (record.booked_until && new Date(record.booked_until) > now) {
-      let slotNumber;
-      if (record.slot_time.startsWith('6:00')) slotNumber = 1;
-      else if (record.slot_time.startsWith('7:20')) slotNumber = 2;
-      else if (record.slot_time.startsWith('8:40')) slotNumber = 3;
-
-      if (slotNumber) {
-        slotsFromDB[slotNumber] = true;
-      }
-    }
-  });
-
-  setBookedSlots(slotsFromDB);
-};
 
 // === COMPONENTS ===
 
@@ -248,15 +189,10 @@ export default function CoachingPage() {
     const slotNumber = formData.session.startsWith('6:00') ? 1 : 
                       formData.session.startsWith('7:20') ? 2 : 3;
     
-    const bookingSuccess = await saveBooking(formData);
-    if (bookingSuccess) {
-      setBookedSlots(prev => ({ ...prev, [slotNumber]: true }));
-      closePaymentModal();
-      // ✅ Redirect to YOUR Razorpay.me page
-      window.open(PAYMENT_LINK, '_blank', 'noopener,noreferrer');
-    } else {
-      alert('Failed to save booking. Please try again or contact support.');
-    }
+    setBookedSlots(prev => ({ ...prev, [slotNumber]: true }));
+    closePaymentModal();
+    // ✅ Redirect to YOUR Razorpay.me page
+    window.open(PAYMENT_LINK, '_blank', 'noopener,noreferrer');
   };
 
   // Scroll to payment section and set session
@@ -281,22 +217,8 @@ export default function CoachingPage() {
     const handleScroll = () => setShowStickyCTA(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
 
-    // Fetch booked slots
-    fetchBookedSlots(setBookedSlots);
-
-    // Real-time updates via Supabase
-    const channel = supabase
-      .channel('bookings-changes')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'bookings' },
-        () => fetchBookedSlots(setBookedSlots)
-      )
-      .subscribe();
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      supabase.removeChannel(channel);
     };
   }, []);
 
