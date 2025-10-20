@@ -303,70 +303,88 @@ export default function Home() {
         `}</style>
       </section>
 
-      {/* Life Coaching Section with Premium Card Design */}
-     {/* ===== LIFE COACHING SECTION (replace your old #coaching block with this) ===== */}
-<section id="coaching" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white">
-  <div className="container mx-auto px-6">
-    <div className="max-w-6xl mx-auto relative">
+     {/* ===== LIFE COACHING SECTION (enhanced with coaching depth & polish) ===== */}
+<section id="coaching" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white relative overflow-hidden">
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(65,105,225,0.08),_transparent_70%)]"></div>
+  
+  <div className="container mx-auto px-6 relative z-10">
+    <div className="max-w-6xl mx-auto">
 
-      {/* Subtle highlight badge above the section */}
+      {/* Subtle highlight badge */}
       <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white/5 text-white text-sm px-3 py-1 rounded-full shadow-md border border-white/10">
-        Featured • Life Coaching
+        Featured • Certified Coaching
       </div>
 
-      {/* Title in plain white */}
+      {/* Title */}
       <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-6 text-center font-bold text-white">
         Life Coaching &amp; Personal Growth Guidance
       </h2>
 
+      {/* Intro paragraph — now infused with your coaching philosophy */}
       <p className="text-lg text-center mb-12 max-w-3xl mx-auto text-silver-500 leading-relaxed">
-        Every person holds within them a story that longs to be lived fully.
-        As a certified coach, I help individuals uncover that story — guiding them to find clarity in their choices, courage in their challenges, and calm in their storms.
-        My role is not to provide answers, but to awaken the answers already within you.
+        Every person carries a <strong>Definite Major Purpose</strong>—a legacy waiting to unfold.  
+        Through compassionate inquiry and structured guidance, I help you uncover clarity, face limiting fears, and align your daily actions with your deepest values.  
+        This isn’t about fixing you. It’s about <em>awakening the wisdom already within</em>.
       </p>
 
-      {/* Cards */}
+      {/* Coaching Cards — refined copy & subtle enhancements */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div className="bg-blue-950 p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105">
-          <h3 className="text-xl font-semibold text-royal-blue mb-4">Life Skills Coaching</h3>
-          <p className="text-silver-500">
-            I equip individuals with the confidence and skills to navigate challenges with resilience — helping them craft habits and mindsets for a balanced, fulfilling life.
+        <div className="bg-blue-950/70 backdrop-blur-sm p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <div className="mb-3">
+            <i data-feather="target" className="text-royal-blue w-6 h-6"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-royal-blue mb-3">Life Skills & Clarity</h3>
+          <p className="text-silver-500 text-sm leading-relaxed">
+            Build resilience, emotional intelligence, and daily habits that support a purpose-driven life—rooted in your values, not external noise.
           </p>
         </div>
 
-        <div className="bg-blue-950 p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105">
-          <h3 className="text-xl font-semibold text-royal-blue mb-4">Career Development Guidance</h3>
-          <p className="text-silver-500">
-            Beyond resumes and job titles, I guide individuals toward purposeful careers—aligning strengths, values, and vision with real opportunities.
+        <div className="bg-blue-950/70 backdrop-blur-sm p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <div className="mb-3">
+            <i data-feather="briefcase" className="text-royal-blue w-6 h-6"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-royal-blue mb-3">Career & Purpose Alignment</h3>
+          <p className="text-silver-500 text-sm leading-relaxed">
+            Move beyond job titles. Discover work that reflects your passions, strengths, and Definite Major Purpose—so your career becomes your contribution.
           </p>
         </div>
 
-        <div className="bg-blue-950 p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105">
-          <h3 className="text-xl font-semibold text-royal-blue mb-4">Emotional Support Coaching</h3>
-          <p className="text-silver-500">
-            In moments of doubt or stress, I provide a calm space for reflection—fostering self-awareness and a compassionate mindset to move forward.
+        <div className="bg-blue-950/70 backdrop-blur-sm p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <div className="mb-3">
+            <i data-feather="heart" className="text-royal-blue w-6 h-6"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-royal-blue mb-3">Emotional Balance</h3>
+          <p className="text-silver-500 text-sm leading-relaxed">
+            Navigate stress, self-doubt, and inner conflict with tools to regulate emotions, silence your inner critic, and reclaim your calm.
           </p>
         </div>
 
-        <div className="bg-blue-950 p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105">
-          <h3 className="text-xl font-semibold text-royal-blue mb-4">Personal Growth Coaching</h3>
-          <p className="text-silver-500">
-            I guide journeys of self-discovery and sustainable change—nurturing confidence, purpose, and authentic transformation.
+        <div className="bg-blue-950/70 backdrop-blur-sm p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <div className="mb-3">
+            <i data-feather="trending-up" className="text-royal-blue w-6 h-6"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-royal-blue mb-3">Growth Mindset Coaching</h3>
+          <p className="text-silver-500 text-sm leading-relaxed">
+            Transform fear into fuel. Develop a mindset that embraces setbacks as feedback—and turns vision into consistent, courageous action.
           </p>
         </div>
       </div>
 
-      {/* CTA */}
-      <div className="flex justify-center mt-12">
-  <Link
-    href="/coaching"
-    className="inline-block bg-gradient-to-r from-royal-blue to-blue-600 text-white py-4 px-10 rounded-lg font-freight text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-glow animate-pulse"
-  >
-    Start Your Transformation Now
-  </Link>
-</div>
+      {/* CTA — more compelling language */}
+      <div className="flex justify-center mt-14">
+        <Link
+          href="/coaching"
+          className="inline-block bg-gradient-to-r from-royal-blue to-blue-600 text-white py-4 px-10 rounded-lg font-freight text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-glow group"
+        >
+          Begin Your Coaching Journey
+          <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">→</span>
+        </Link>
+      </div>
     </div>
   </div>
+
+  {/* Feather Icons Init (hidden) */}
+  <div ref={() => import('feather-icons').then(f => f.replace())} style={{ display: 'none' }} />
 
   <style jsx>{`
     .text-royal-blue {
@@ -374,6 +392,9 @@ export default function Home() {
     }
     .text-silver-500 {
       color: #A0A0A0;
+    }
+    .hover\\:shadow-glow:hover {
+      box-shadow: 0 0 25px rgba(65, 105, 225, 0.6);
     }
   `}</style>
 </section>

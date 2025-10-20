@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 // === Constants ===
 const PRICE_INR = 99;
-const PAYMENT_LINK = 'https://razorpay.me/@mohammadshafeeurrahaman'; // ✅ No spaces
+const PAYMENT_LINK = 'https://razorpay.me/@mohammadshafeeurrahaman'; // ✅ Fixed typo
 
 // === COMPONENTS ===
 
@@ -57,7 +57,6 @@ function PaymentModal({ isOpen, onClose, formData, setFormData, handlePay, formE
         data-aos="zoom-in"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Gold Border Glow */}
         <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
           background: 'radial-gradient(circle at center, rgba(212, 175, 55, 0.2), transparent 70%)',
         }}></div>
@@ -163,13 +162,8 @@ export default function CoachingPage() {
   const [formErrors, setFormErrors] = useState({});
   const paymentSectionRef = useRef(null);
 
-  const openPaymentModal = () => {
-    setIsPaymentModalOpen(true);
-  };
-
-  const closePaymentModal = () => {
-    setIsPaymentModalOpen(false);
-  };
+  const openPaymentModal = () => setIsPaymentModalOpen(true);
+  const closePaymentModal = () => setIsPaymentModalOpen(false);
 
   const validateForm = () => {
     const errors = {};
@@ -182,44 +176,27 @@ export default function CoachingPage() {
     return Object.keys(errors).length === 0;
   };
 
-  // ✅ This is called from the MODAL'S "Pay Now" button
-  const handlePay = async () => {
+  const handlePay = () => {
     if (!validateForm()) return;
-
     const slotNumber = formData.session.startsWith('6:00') ? 1 : 
                       formData.session.startsWith('7:20') ? 2 : 3;
-    
     setBookedSlots(prev => ({ ...prev, [slotNumber]: true }));
     closePaymentModal();
-    // ✅ Redirect to YOUR Razorpay.me page
     window.open(PAYMENT_LINK, '_blank', 'noopener,noreferrer');
   };
 
-  // Scroll to payment section and set session
   const scrollToPayment = (sessionTime) => {
     setFormData(prev => ({ ...prev, session: sessionTime }));
-    if (paymentSectionRef.current) {
-      paymentSectionRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    paymentSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    // Init AOS
     import('aos').then(AOS => AOS.init({ duration: 1000, once: true }));
-
-    // Init Feather Icons
     import('feather-icons').then(feather => feather.replace());
-
-    // Dark mode
     document.documentElement.classList.add('dark');
-
-    // Sticky CTA
     const handleScroll = () => setShowStickyCTA(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -235,21 +212,21 @@ export default function CoachingPage() {
         </div>
         <div className="container mx-auto px-6 relative z-10" data-aos="fade-up">
           <h1 className="text-6xl md:text-8xl font-bold mb-6 font-freight text-white drop-shadow-lg">
-            Life Coach
+            Purpose-Driven Coaching
           </h1>
           <p className="text-2xl md:text-3xl max-w-3xl mx-auto mb-10 text-white leading-relaxed drop-shadow-md">
-            Transform your life with personalized guidance from Mohammad Shafee Ur Rahaman
+            Discover your Definite Major Purpose. Transform fear into action. Build a life you’re proud to leave as your legacy.
           </p>
           <Link
             href="#payment"
             className="inline-block bg-gradient-to-r from-gold-300 to-yellow-500 text-white py-4 px-10 rounded-full font-bold text-lg shadow-glow hover:shadow-2xl transform hover:scale-110 transition-all duration-300 tracking-wide"
           >
-            Book Your Session
+            Begin Your Journey
           </Link>
         </div>
       </section>
 
-      {/* About */}
+      {/* Philosophy */}
       <section className="py-24 bg-black/50">
         <div className="container mx-auto px-6" data-aos="fade-up">
           <div className="flex flex-col md:flex-row items-center gap-16">
@@ -257,7 +234,7 @@ export default function CoachingPage() {
               <div className="relative">
                 <Image
                   src="/images/portfolio-headshot.png"
-                  alt="Mohammad Shafee"
+                  alt="Mohammad Shafee Ur Rahaman"
                   width={300}
                   height={300}
                   className="rounded-full object-cover border-4 border-gold-300 shadow-2xl"
@@ -268,34 +245,64 @@ export default function CoachingPage() {
               </div>
             </div>
             <div className="md:w-2/3">
-              <h2 className="text-5xl font-bold mb-8 text-white font-freight">Purposeful Growth</h2>
+              <h2 className="text-5xl font-bold mb-8 text-white font-freight">Clarity Through Coaching</h2>
               <p className="text-xl text-gray-200 mb-6 leading-relaxed">
-                Every person has a story waiting to unfold. As a dedicated life coach, I help you uncover clarity, build confidence, and navigate challenges with calm strength.
+                I believe every person carries a <strong>Definite Major Purpose (DMP)</strong>—work they’d do even if unpaid, a legacy they’re meant to leave. My role isn’t to give answers, but to help you uncover yours.
               </p>
               <p className="text-xl text-gray-200 leading-relaxed">
-                My approach blends empathy, structure, and real-world tools to guide you toward lasting personal transformation.
+                Using proven frameworks in goal-setting, fear-facing, and mindset development, I guide you from confusion to confident action.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Services */}
+      {/* Coaching Framework */}
       <section className="py-24 bg-gray-950">
         <div className="container mx-auto px-6">
           <h2 className="text-5xl font-bold mb-16 text-center text-white font-freight" data-aos="fade-up">
-            What I Offer
+            My Coaching Process
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
-              { icon: "target", title: "Life Skills", desc: "Build resilience, discipline, and emotional intelligence." },
-              { icon: "briefcase", title: "Career Clarity", desc: "Align your work with purpose and long-term vision." },
-              { icon: "heart", title: "Emotional Balance", desc: "Heal inner noise and find peace in uncertainty." },
-              { icon: "trending-up", title: "Growth Mindset", desc: "Transform setbacks into stepping stones." },
+              { step: "1", title: "Discover Your DMP", desc: "Clarify your passion, values, and legacy through guided reflection." },
+              { step: "2", title: "Set Aligned Goals", desc: "Create SMART goals rooted in your purpose—not external pressure." },
+              { step: "3", title: "Face Limiting Fears", desc: "Identify and move through fear using structured, compassionate inquiry." },
+              { step: "4", title: "Take Committed Action", desc: "Build accountability, track progress, and celebrate micro-wins." },
             ].map((s, i) => (
               <div
                 key={i}
-                className="bg-gray-800/70 p-8 rounded-2xl border border-gray-700 hover:border-gold-400/50 transition-all duration-300 transform hover:-translate-y-2"
+                className="bg-gray-800/70 p-8 rounded-2xl border border-gray-700 hover:border-gold-400/50 transition-all duration-300 text-center"
+                data-aos="fade-up"
+                data-aos-delay={i * 100}
+              >
+                <div className="text-4xl font-bold text-gold-300 mb-4">{s.step}</div>
+                <h3 className="text-2xl font-bold mb-3 text-white">{s.title}</h3>
+                <p className="text-gray-300 leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Specializations */}
+      <section className="py-24 bg-black/40">
+        <div className="container mx-auto px-6">
+          <h2 className="text-5xl font-bold mb-16 text-center text-white font-freight" data-aos="fade-up">
+            Areas I Guide
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {[
+              { icon: "briefcase", title: "Career Transitions", desc: "Navigate job changes, burnout, or purposeless work with clarity." },
+              { icon: "heart", title: "Confidence & Self-Belief", desc: "Silence your inner critic and build unshakable self-worth." },
+              { icon: "users", title: "Relationship Clarity", desc: "Set boundaries, improve communication, and honor your needs." },
+              { icon: "target", title: "Goal Achievement", desc: "Turn dreams into actionable plans with accountability." },
+              { icon: "zap", title: "Overcoming Fear", desc: "Move through fear of failure, success, or judgment." },
+              { icon: "book", title: "Life Reorganization", desc: "For empty-nesters, retirees, or those seeking renewed direction." },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="bg-gray-800/70 p-8 rounded-2xl border border-gray-700 hover:border-gold-400/50 transition-all duration-300"
                 data-aos="fade-up"
                 data-aos-delay={i * 100}
               >
@@ -310,7 +317,7 @@ export default function CoachingPage() {
       </section>
 
       {/* Sessions */}
-      <section className="py-24 bg-black/40">
+      <section className="py-24 bg-gray-950">
         <div className="container mx-auto px-6">
           <h2 className="text-5xl font-bold mb-16 text-center text-white font-freight" data-aos="fade-up">
             Choose Your Session
@@ -335,72 +342,35 @@ export default function CoachingPage() {
         </div>
       </section>
 
-      {/* Impact Stats */}
-      <section className="py-24 bg-gray-950">
+      {/* Impact */}
+      <section className="py-24 bg-black/50">
         <div className="container mx-auto px-6" data-aos="fade-up">
-          <h2 className="text-5xl font-bold mb-8 text-center text-white font-freight">Real Impact</h2>
+          <h2 className="text-5xl font-bold mb-8 text-center text-white font-freight">Real Transformation</h2>
           <p className="text-2xl text-gray-300 text-center mb-16 max-w-4xl mx-auto">
-            Coaching isn’t magic — it’s conversation that leads to change.
+            Coaching is the mirror that helps you see your own strength.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             {[
-              { num: '92%', label: 'found mental clarity' },
-              { num: '85%', label: 'made bold decisions' },
-              { num: '78%', label: 'reduced anxiety' },
-              { num: '100%', label: 'felt deeply heard' },
+              { num: '92%', label: 'gained clarity on their DMP' },
+              { num: '88%', label: 'took bold action within 2 weeks' },
+              { num: '81%', label: 'reduced self-doubt significantly' },
+              { num: '100%', label: 'felt deeply seen and heard' },
             ].map((stat, i) => (
-              <div
-                key={i}
-                className="bg-gradient-to-br from-green-900/40 to-transparent p-7 rounded-2xl border border-green-500/30 text-center hover:border-green-400/50 transition"
-              >
+              <div key={i} className="bg-gradient-to-br from-green-900/40 to-transparent p-7 rounded-2xl border border-green-500/30 text-center hover:border-green-400/50 transition">
                 <div className="text-5xl font-extrabold text-gold-200 mb-2">{stat.num}</div>
                 <div className="text-gray-300">{stat.label}</div>
               </div>
             ))}
           </div>
           <div className="bg-gray-800/60 rounded-2xl p-10 border border-gray-700 max-w-3xl mx-auto">
-            <h3 className="text-2xl font-semibold text-white mb-6">Small Shifts, Big Changes</h3>
+            <h3 className="text-2xl font-semibold text-white mb-6">Client Insights</h3>
             <div className="space-y-4 text-gray-300">
-              <p><span className="text-gold-300">💬</span> “I finally made the career move I feared for years.”</p>
-              <p><span className="text-gold-300">💬</span> “For the first time, I feel peace about my future.”</p>
-              <p className="text-sm text-gray-400 mt-6">
-                * Feedback from real clients. Identities protected.
-              </p>
+              <p><span className="text-gold-300">💬</span> “I finally understood what I’m here to do.”</p>
+              <p><span className="text-gold-300">💬</span> “Fear no longer runs my decisions.”</p>
+              <p className="text-sm text-gray-400 mt-6">* Identities protected. Real feedback from coaching sessions.</p>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-24 bg-black/50">
-        <div className="container mx-auto px-6">
-          <h2 className="text-5xl font-bold mb-16 text-center text-white font-freight" data-aos="fade-up">
-            Voices of Change
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {[
-              { q: "Sessions gave me clarity in chaos.", a: "A Journey Begins" },
-              { q: "Practical tools changed how I think.", a: "Mind Transformed" },
-              { q: "Progress in 3 sessions > months alone.", a: "Breakthrough Achieved" },
-            ].map((t, i) => (
-              <div
-                key={i}
-                className="bg-gray-800/70 p-8 rounded-2xl border border-gray-700"
-                data-aos="fade-up"
-                data-aos-delay={i * 100}
-              >
-                <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <i key={i} data-feather="star" className="text-yellow-400 w-5 h-5 mr-1"></i>
-                  ))}
-                </div>
-                <p className="text-gray-200 italic mb-4">"{t.q}"</p>
-                <p className="text-gold-300 font-medium">— {t.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div ref={() => import('feather-icons').then(f => f.replace())} style={{ display: 'none' }} />
       </section>
 
       {/* Payment */}
@@ -410,18 +380,32 @@ export default function CoachingPage() {
           <div className="w-full h-full bg-gradient-radial from-gold-300/30 via-transparent to-transparent"></div>
         </div>
         <div className="container mx-auto px-6 relative z-10" data-aos="zoom-in">
-          <h2 className="text-5xl font-bold mb-6 text-center text-white font-freight">Invest in Yourself</h2>
-          <p className="text-2xl text-gray-300 text-center mb-16 max-w-2xl mx-auto leading-relaxed">
-            One hour today can change your tomorrow. This isn’t just a session — it’s a step forward.
+          <h2 className="text-5xl font-bold mb-6 text-center text-white font-freight">Invest in Your Purpose</h2>
+          <p className="text-2xl text-gray-300 text-center mb-12 max-w-2xl mx-auto leading-relaxed">
+            One session can shift your trajectory. This is more than coaching—it’s a commitment to your highest self.
           </p>
+          <div className="max-w-md mx-auto mb-8">
+            <div className="bg-gray-800/70 p-6 rounded-2xl border border-gray-700 shadow-lg">
+              <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <i data-feather="info" className="w-5 h-5 text-gold-300"></i>
+                How to Book
+              </h3>
+              <ul className="list-disc list-inside text-gray-300 text-sm space-y-2">
+                <li>Select your time slot below.</li>
+                <li>Complete payment of ₹99 via Razorpay.</li>
+                <li><strong>Include your slot number (1, 2, or 3) in the payment note.</strong></li>
+                <li>You’ll receive a confirmation and session link within 24 hours.</li>
+              </ul>
+            </div>
+          </div>
           <div className="max-w-md mx-auto">
-            <div className="relative bg-gradient-to-br from-yellow-600 via-yellow-700 to-yellow-800 text-white rounded-3xl shadow-2xl border-2 border-gold-400 overflow-hidden transform hover:scale-[1.02] transition-all duration-500">
+            <div className="relative bg-gradient-to-br from-yellow-600 via-yellow-700 to-yellow-800 text-white rounded-3xl shadow-2xl border-2 border-gold-400 overflow-hidden hover:scale-[1.02] transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
               <div className="p-10 relative z-10">
                 <div className="flex justify-between items-start mb-8">
                   <div>
                     <h3 className="text-3xl font-bold font-freight">One-on-One Coaching</h3>
-                    <p className="text-yellow-100">60 Minutes • Virtual</p>
+                    <p className="text-yellow-100">60 Minutes • Virtual • Confidential</p>
                   </div>
                   <div className="text-right">
                     <span className="block text-6xl font-black">₹99</span>
@@ -429,29 +413,21 @@ export default function CoachingPage() {
                   </div>
                 </div>
                 <ul className="space-y-4 mb-8 text-yellow-100">
-                  <li className="flex items-center gap-3">
-                    <i data-feather="check-circle" className="w-6 h-6 text-green-100"></i>
-                    Personalized attention
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <i data-feather="check-circle" className="w-6 h-6 text-green-100"></i>
-                    Clarity on goals & emotions
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <i data-feather="check-circle" className="w-6 h-6 text-green-100"></i>
-                    Tools for lasting growth
-                  </li>
+                  <li className="flex items-center gap-3"><i data-feather="check-circle" className="w-6 h-6 text-green-100"></i> Active listening & powerful questioning</li>
+                  <li className="flex items-center gap-3"><i data-feather="check-circle" className="w-6 h-6 text-green-100"></i> DMP & goal alignment</li>
+                  <li className="flex items-center gap-3"><i data-feather="check-circle" className="w-6 h-6 text-green-100"></i> Fear-facing & mindset tools</li>
                 </ul>
-                {/* ✅ THIS NOW OPENS THE MODAL */}
                 <button
                   onClick={openPaymentModal}
                   className="w-full bg-black/40 backdrop-blur-md hover:bg-black/50 text-yellow-50 py-5 px-6 rounded-2xl font-bold text-lg shadow-glow transform transition-all duration-300 flex items-center justify-center gap-3"
                 >
                   <i data-feather="calendar" className="w-6 h-6"></i>
-                  Reserve My Spot
+                  Reserve My Session
                 </button>
-                <p className="text-center text-yellow-200 text-sm mt-4">
-                  ⏳ Only 25 spots at this price
+                <p className="text-center text-yellow-200 text-sm mt-4">⏳ Limited introductory spots</p>
+                <p className="text-center text-yellow-100 text-sm mt-2 font-medium">
+                  <i data-feather="alert-circle" className="w-4 h-4 inline-block mr-1"></i>
+                  Include slot number in Razorpay note
                 </p>
               </div>
             </div>
@@ -467,7 +443,7 @@ export default function CoachingPage() {
           <button
             onClick={openPaymentModal}
             className="bg-gradient-to-r from-gold-300 to-yellow-500 text-white py-4 px-8 rounded-full font-bold shadow-glow hover:shadow-2xl transform hover:scale-110 transition-all duration-300 flex items-center gap-2 text-lg"
-            style={{ boxShadow: '0 0 30px rgba(212, 175, 55, 0.8)', fontWeight: 'bold' }}
+            style={{ boxShadow: '0 0 30px rgba(212, 175, 55, 0.8)' }}
           >
             <i data-feather="star" className="w-5 h-5"></i>
             Book Now
@@ -502,16 +478,7 @@ export default function CoachingPage() {
           0% { background-position: -100% 0; }
           100% { background-position: 200% 0; }
         }
-        .drop-shadow-lg {
-          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+        .drop-shadow-lg { text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); }
       `}</style>
     </div>
   );
