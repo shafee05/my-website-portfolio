@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 // === Constants ===
 const PRICE_INR = 99;
-const PAYMENT_LINK = 'https://razorpay.me/@mohammadshafeeurrahaman'; // ✅ Fixed typo
+const PAYMENT_LINK = 'https://razorpay.me/@mohammadshafeeurrahaman'; // 
 
 // === COMPONENTS ===
 
