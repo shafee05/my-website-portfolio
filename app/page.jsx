@@ -130,8 +130,8 @@ export default function Home() {
       <ContentSection
         title="My AI & Data Science Odyssey<br/>Where Innovation Meets Passion"
         paragraphs={[
-          "Step into the world of Mohammad Shafee ur Rahaman—a visionary Data Science Engineering student igniting a revolution in emotional intelligence through AI. With expertise in Generative AI, NLP, and emotionally resonant systems, I’m crafting a future where technology feels human. Curious? Dive deeper into the projects that define my journey.",
-          "This portfolio is more than a showcase—it’s an invitation to explore the mind of a creator who blends data with dreams. Each project, skill, and achievement is a stepping stone to something extraordinary. Are you ready to be inspired?"
+          "Step into the world of Mohammad Shafee ur Rahaman—a visionary Data Science Engineering student igniting a revolution in emotional intelligence through AI. With expertise in Generative AI, NLP, and emotionally resonant systems, I'm crafting a future where technology feels human. Curious? Dive deeper into the projects that define my journey.",
+          "This portfolio is more than a showcase—it's an invitation to explore the mind of a creator who blends data with dreams. Each project, skill, and achievement is a stepping stone to something extraordinary. Are you ready to be inspired?"
         ]}
         bgColor="bg-gradient-to-b from-gray-900 to-blue-950"
         textColor="text-white"
@@ -324,7 +324,7 @@ export default function Home() {
       <p className="text-lg text-center mb-12 max-w-3xl mx-auto text-silver-500 leading-relaxed">
         Every person carries a <strong>Definite Major Purpose</strong>—a legacy waiting to unfold.  
         Through compassionate inquiry and structured guidance, I help you uncover clarity, face limiting fears, and align your daily actions with your deepest values.  
-        This isn’t about fixing you. It’s about <em>awakening the wisdom already within</em>.
+        This isn't about fixing you. It's about <em>awakening the wisdom already within</em>.
       </p>
 
       {/* Coaching Cards — refined copy & subtle enhancements */}
@@ -410,16 +410,64 @@ export default function Home() {
       </h2>
 
       {/* Cards Grid */}
-      <div className="grid md:grid-cols-3 gap-12">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        {/* ImanVerse - Featured Project */}
+        <div
+          className="relative h-80 rounded-xl shadow-2xl overflow-hidden group col-span-2"
+          style={{ 
+            backgroundImage: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('/images/quran-bg.jpg')", 
+            backgroundSize: "cover", 
+            backgroundPosition: "center",
+            border: "2px solid rgba(212, 175, 55, 0.3)"
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 to-emerald-800/30 group-hover:from-green-900/30 group-hover:to-emerald-800/40 transition-all duration-500"></div>
+          
+          {/* Featured Badge */}
+          <div className="absolute top-4 left-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-lg">
+            🌟 Featured Project
+          </div>
+          
+          <div className="relative z-10 p-6 flex flex-col justify-end h-full">
+            <div className="mb-4">
+              <h3 className="text-2xl font-bold text-white mb-2 flex items-center">
+                ImanVerse
+                <span className="ml-2 text-sm bg-white/20 px-2 py-1 rounded-md">Islamic Platform</span>
+              </h3>
+              <p className="text-emerald-100 text-sm mb-3 leading-relaxed">
+                A comprehensive Islamic platform providing Quran access, prayer times, Islamic knowledge, and spiritual resources for the Muslim community.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="bg-white/10 text-emerald-200 text-xs px-2 py-1 rounded">Next.js</span>
+                <span className="bg-white/10 text-emerald-200 text-xs px-2 py-1 rounded">TypeScript</span>
+                <span className="bg-white/10 text-emerald-200 text-xs px-2 py-1 rounded">Tailwind CSS</span>
+                <span className="bg-white/10 text-emerald-200 text-xs px-2 py-1 rounded">Quran API</span>
+              </div>
+            </div>
+            <a
+              href="https://imanverse.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform group-hover:scale-105 shadow-lg hover:shadow-2xl"
+            >
+              <span>Explore ImanVerse</span>
+              <span className="ml-2 group-hover:translate-x-1 transition-transform">🌙</span>
+            </a>
+          </div>
+          
+          {/* Hover Effect */}
+          <div className="absolute inset-0 border-2 border-transparent group-hover:border-emerald-400/50 transition-all duration-300 rounded-xl"></div>
+        </div>
 
         {/* Project 1 */}
         <div
-          className="relative h-72 rounded-lg shadow-silver overflow-hidden group"
+          className="relative h-80 rounded-lg shadow-silver overflow-hidden group"
           style={{ backgroundImage: "url('/images/cricket.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
         >
           <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 transition-all duration-300"></div>
           <div className="relative z-10 p-6 flex flex-col justify-end h-full">
-            <h3 className="text-2xl font-semibold text-white mb-2">
+            <h3 className="text-xl font-semibold text-white mb-2">
               Cricket Player Performance Prediction
             </h3>
             <p className="text-silver-300 text-sm mb-4">
@@ -439,12 +487,12 @@ export default function Home() {
 
         {/* Project 2 */}
         <div
-          className="relative h-72 rounded-lg shadow-silver overflow-hidden group"
+          className="relative h-80 rounded-lg shadow-silver overflow-hidden group"
           style={{ backgroundImage: "url('/images/gesturetalk.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
         >
           <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 transition-all duration-300"></div>
           <div className="relative z-10 p-6 flex flex-col justify-end h-full">
-            <h3 className="text-2xl font-semibold text-white mb-2">
+            <h3 className="text-xl font-semibold text-white mb-2">
               GestureTalk Sign Language System
             </h3>
             <p className="text-silver-300 text-sm mb-4">
@@ -464,12 +512,12 @@ export default function Home() {
 
         {/* Project 3 - XAFAM */}
         <div
-          className="relative h-72 rounded-lg shadow-silver overflow-hidden group"
+          className="relative h-80 rounded-lg shadow-silver overflow-hidden group"
           style={{ backgroundImage: "url('/images/xafamemblem.png')", backgroundSize: "cover", backgroundPosition: "center" }}
         >
           <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 transition-all duration-300"></div>
           <div className="relative z-10 p-6 flex flex-col justify-end h-full">
-            <h3 className="text-2xl font-semibold text-white mb-2">
+            <h3 className="text-xl font-semibold text-white mb-2">
               XAFAM
             </h3>
             <p className="text-silver-300 text-sm mb-4">
@@ -484,7 +532,60 @@ export default function Home() {
             </Link>
           </div>
         </div>
+
       </div>
+
+      {/* ImanVerse Detailed Description
+      <div className="mt-16 bg-gradient-to-r from-green-900/30 to-emerald-800/20 rounded-2xl p-8 border border-emerald-500/20">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 className="text-2xl font-bold text-white mb-4 flex items-center">
+              <span className="text-emerald-400 mr-2">🌙</span>
+              About ImanVerse
+            </h3>
+            <p className="text-emerald-100 leading-relaxed mb-4">
+              ImanVerse is a comprehensive Islamic platform designed to serve the Muslim community with modern, accessible spiritual resources. 
+              Built with cutting-edge technology, it provides:
+            </p>
+            <ul className="text-emerald-100 space-y-2 mb-6">
+              <li className="flex items-center">
+                <span className="text-emerald-400 mr-2">📖</span>
+                Complete Quran with translation and tafsir
+              </li>
+              <li className="flex items-center">
+                <span className="text-emerald-400 mr-2">🕌</span>
+                Accurate prayer times and Qibla direction
+              </li>
+              <li className="flex items-center">
+                <span className="text-emerald-400 mr-2">📚</span>
+                Islamic knowledge library and educational resources
+              </li>
+              <li className="flex items-center">
+                <span className="text-emerald-400 mr-2">🤲</span>
+                Daily duas and remembrance (Adhkar)
+              </li>
+            </ul>
+            <a
+              href="https://imanverse.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center bg-white text-emerald-800 hover:bg-emerald-50 py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              <span>Visit ImanVerse</span>
+              <span className="ml-2">→</span>
+            </a>
+          </div>
+          <div className="relative h-64 rounded-lg overflow-hidden border-2 border-emerald-500/30">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 to-green-800 flex items-center justify-center">
+              <div className="text-center text-white">
+                <div className="text-4xl mb-2">🌙</div>
+                <p className="text-lg font-semibold">ImanVerse</p>
+                <p className="text-sm text-emerald-200">Islamic Spiritual Platform</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
     </div>
   </div>
 
@@ -625,10 +726,10 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-6 font-bold animate-fadeInUp text-white">
-              Let’s Create Something Extraordinary
+              Let's Create Something Extraordinary
             </h2>
             <p className="text-lg text-center mb-12 max-w-2xl mx-auto text-silver-500">
-              I’m eager to collaborate on groundbreaking projects, share bold ideas, or join your vision to shape the future. Take the first step—connect with me today!
+              I'm eager to collaborate on groundbreaking projects, share bold ideas, or join your vision to shape the future. Take the first step—connect with me today!
             </p>
             <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-8">
               <a

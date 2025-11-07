@@ -91,6 +91,26 @@ export default function PortfolioPage() {
     githubUrl: "https://github.com/shafee05/GestureTalk-Sign-Language-Recognition",
   };
 
+  // Popup content for ImanVerse Project
+  const imanVersePopupContent = {
+    objective: "A comprehensive Islamic platform providing spiritual resources and educational content for the Muslim community.",
+    features: "Complete Quran access with translations, prayer times, Islamic knowledge library, daily duas, and educational resources.",
+    technology: "Built with Next.js, TypeScript, Tailwind CSS, and integrated with Quran API for authentic content delivery.",
+    purpose: "To make Islamic knowledge accessible and provide a modern digital platform for spiritual growth and learning.",
+    liveUrl: "https://imanverse.vercel.app/",
+    githubUrl: "https://github.com/shafee05/imanverse",
+  };
+
+  // Popup content for Digital Card Project
+  const digitalCardPopupContent = {
+    objective: "An interactive 3D digital business card showcasing professional information with modern web technologies.",
+    features: "3D animations, smooth transitions, professional layout, and responsive design for all devices.",
+    technology: "Built with HTML5, CSS3, JavaScript, and 3D CSS transformations for an immersive experience.",
+    purpose: "To provide an engaging and memorable digital introduction for professional networking and connections.",
+    liveUrl: "https://shafee05.github.io/sha-digital-card/",
+    githubUrl: "https://github.com/shafee05/sha-digital-card",
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
@@ -178,7 +198,7 @@ export default function PortfolioPage() {
                   elevated accuracy, reduced latency, and reshaped how teams approached 
                   innovation. In my projects—whether building <span className="font-semibold">GestureTalk</span>, 
                   a real-time sign language recognition and animation system, or predicting 
-                  performance in cricket through intelligent models—I’ve proven that AI can 
+                  performance in cricket through intelligent models—I've proven that AI can 
                   be more than just functional. It can be <span className="italic">human at its core</span>.
                 </p>
 
@@ -325,6 +345,113 @@ export default function PortfolioPage() {
         <div className="container mx-auto px-4">
           <h2 className="portfolio-heading text-foreground">Projects</h2>
 
+          {/* ImanVerse Project */}
+          <div
+            className="project-card"
+            onClick={() => { setIsPopupOpen(true); setCurrentProject("imanVerse"); }}
+            style={{ cursor: "pointer" }}
+          >
+            <div className="flex items-center space-x-2 mb-2">
+              <a
+                href="https://github.com/shafee05/imanverse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="relative w-6 h-6">
+                  <Image
+                    src="/svg/github.svg"
+                    alt="GitHub Repository"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </a>
+              <span className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity">
+                ImanVerse - Islamic Spiritual Platform (2024)
+              </span>
+            </div>
+            <p className="text-shafee-lighter mb-4">
+              A comprehensive Islamic platform built with Next.js and TypeScript, providing Quran access with translations, 
+              prayer times, Islamic knowledge library, and educational resources for the Muslim community.
+            </p>
+            <div className="flex space-x-4">
+              <a
+                href="https://imanverse.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm bg-accent hover:bg-shafee-medium text-secondary px-3 py-1 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Live Demo
+              </a>
+              <a
+                href="https://github.com/shafee05/imanverse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm bg-accent hover:bg-shafee-medium text-secondary px-3 py-1 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View Code
+              </a>
+            </div>
+          </div>
+
+          {/* Digital Card Project */}
+          <div
+            className="project-card"
+            onClick={() => { setIsPopupOpen(true); setCurrentProject("digitalCard"); }}
+            style={{ cursor: "pointer" }}
+          >
+            <div className="flex items-center space-x-2 mb-2">
+              <a
+                href="https://github.com/shafee05/sha-digital-card"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="relative w-6 h-6">
+                  <Image
+                    src="/svg/github.svg"
+                    alt="GitHub Repository"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </a>
+              <span className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity">
+                3D Digital Business Card (2024)
+              </span>
+            </div>
+            <p className="text-shafee-lighter mb-4">
+              An interactive 3D digital business card featuring smooth animations and modern design. 
+              Built with HTML5, CSS3, and JavaScript to create an engaging professional introduction.
+            </p>
+            <div className="flex space-x-4">
+              <a
+                href="https://shafee05.github.io/sha-digital-card/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm bg-accent hover:bg-shafee-medium text-secondary px-3 py-1 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View Card
+              </a>
+              <a
+                href="https://github.com/shafee05/sha-digital-card"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm bg-accent hover:bg-shafee-medium text-secondary px-3 py-1 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View Code
+              </a>
+            </div>
+          </div>
+
+          {/* GestureTalk Project */}
           <div
             className="project-card"
             onClick={() => { setIsPopupOpen(true); setCurrentProject("gestureTalk"); }}
@@ -336,6 +463,7 @@ export default function PortfolioPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
               >
                 <div className="relative w-6 h-6">
                   <Image
@@ -358,6 +486,7 @@ export default function PortfolioPage() {
             </p>
           </div>
 
+          {/* Cricket Project */}
           <div
             className="project-card"
             onClick={() => { setIsPopupOpen(true); setCurrentProject("cricket"); }}
@@ -369,6 +498,7 @@ export default function PortfolioPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
               >
                 <div className="relative w-6 h-6">
                   <Image
@@ -388,25 +518,6 @@ export default function PortfolioPage() {
               match outcome predictions by 15% through algorithm optimization.
             </p>
           </div>
-              
-          {/* <div className="project-card">
-            <div className="flex items-center mb-2">
-              <Link
-                href="/asset#steps"
-                className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity"
-              >
-                AI Assistant 2.0 – More Than Just a Chatbot
-              </Link>
-              <span className="ml-3 px-2 py-1 text-xs bg-accent text-secondary rounded-md">
-                In Progress
-              </span>
-            </div>
-            <p className="text-shafee-lighter mb-4">
-              A next-gen personal AI assistant under development, designed to
-              retain prior conversations, analyze user sentiment, and craft
-              contextually rich responses. "Not just answers—connections."
-            </p>
-          </div> */}
         </div>
 
         {/* Popup Modal for Projects */}
@@ -455,7 +566,7 @@ export default function PortfolioPage() {
                     </a>
                   </div>
                 </>
-              ) : (
+              ) : currentProject === "cricket" ? (
                 <>
                   <h3 className="text-2xl font-semibold mb-4">
                     Cricket Player Performance Prediction (2024)
@@ -482,6 +593,82 @@ export default function PortfolioPage() {
                         />
                       </div>
                     </a>
+                  </div>
+                </>
+              ) : currentProject === "imanVerse" ? (
+                <>
+                  <h3 className="text-2xl font-semibold mb-4">
+                    ImanVerse - Islamic Spiritual Platform (2024)
+                  </h3>
+                  <div className="space-y-4 overflow-y-auto h-full pr-2">
+                    <p><strong>Objective:</strong> {imanVersePopupContent.objective}</p>
+                    <p><strong>Features:</strong> {imanVersePopupContent.features}</p>
+                    <p><strong>Technology:</strong> {imanVersePopupContent.technology}</p>
+                    <p><strong>Purpose:</strong> {imanVersePopupContent.purpose}</p>
+                    <div className="flex space-x-4 mt-6">
+                      <a
+                        href={imanVersePopupContent.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
+                      >
+                        Live Demo
+                      </a>
+                      <a
+                        href={imanVersePopupContent.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
+                      >
+                        View on GitHub
+                        <div className="relative w-4 h-4">
+                          <Image
+                            src="/svg/github.svg"
+                            alt="GitHub Repository"
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-semibold mb-4">
+                    3D Digital Business Card (2024)
+                  </h3>
+                  <div className="space-y-4 overflow-y-auto h-full pr-2">
+                    <p><strong>Objective:</strong> {digitalCardPopupContent.objective}</p>
+                    <p><strong>Features:</strong> {digitalCardPopupContent.features}</p>
+                    <p><strong>Technology:</strong> {digitalCardPopupContent.technology}</p>
+                    <p><strong>Purpose:</strong> {digitalCardPopupContent.purpose}</p>
+                    <div className="flex space-x-4 mt-6">
+                      <a
+                        href={digitalCardPopupContent.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
+                      >
+                        View Card
+                      </a>
+                      <a
+                        href={digitalCardPopupContent.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
+                      >
+                        View on GitHub
+                        <div className="relative w-4 h-4">
+                          <Image
+                            src="/svg/github.svg"
+                            alt="GitHub Repository"
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      </a>
+                    </div>
                   </div>
                 </>
               )}

@@ -6,7 +6,8 @@ import Link from 'next/link';
 
 // === Constants ===
 const PRICE_INR = 99;
-const PAYMENT_LINK = 'https://razorpay.me/@mohammadshafeeurrahaman'; // 
+const PAYMENT_LINK = 'https://razorpay.me/@mohammadshafeeurrahaman';
+const DIGITAL_CARD_LINK = 'https://shafee05.github.io/sha-digital-card/';
 
 // === COMPONENTS ===
 
@@ -215,7 +216,7 @@ export default function CoachingPage() {
             Purpose-Driven Coaching
           </h1>
           <p className="text-2xl md:text-3xl max-w-3xl mx-auto mb-10 text-white leading-relaxed drop-shadow-md">
-            Discover your Definite Major Purpose. Transform fear into action. Build a life you’re proud to leave as your legacy.
+            Discover your Definite Major Purpose. Transform fear into action. Build a life you're proud to leave as your legacy.
           </p>
           <Link
             href="#payment"
@@ -247,11 +248,59 @@ export default function CoachingPage() {
             <div className="md:w-2/3">
               <h2 className="text-5xl font-bold mb-8 text-white font-freight">Clarity Through Coaching</h2>
               <p className="text-xl text-gray-200 mb-6 leading-relaxed">
-                I believe every person carries a <strong>Definite Major Purpose (DMP)</strong>—work they’d do even if unpaid, a legacy they’re meant to leave. My role isn’t to give answers, but to help you uncover yours.
+                I believe every person carries a <strong>Definite Major Purpose (DMP)</strong>—work they'd do even if unpaid, a legacy they're meant to leave. My role isn't to give answers, but to help you uncover yours.
               </p>
               <p className="text-xl text-gray-200 leading-relaxed">
                 Using proven frameworks in goal-setting, fear-facing, and mindset development, I guide you from confusion to confident action.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Digital Business Card Section */}
+      <section className="py-24 bg-gradient-to-br from-gray-900 to-black">
+        <div className="container mx-auto px-6">
+          <h2 className="text-5xl font-bold mb-16 text-center text-white font-freight" data-aos="fade-up">
+            My Digital Business Card
+          </h2>
+          <div className="max-w-4xl mx-auto" data-aos="zoom-in">
+            <div className="bg-gray-800/40 rounded-3xl p-8 border border-gold-400/30 shadow-2xl">
+              <div className="flex flex-col lg:flex-row items-center gap-10">
+                <div className="lg:w-1/2 text-center lg:text-left">
+                  <h3 className="text-3xl font-bold mb-6 text-gold-300">Interactive 3D Card</h3>
+                  <p className="text-xl text-gray-300 mb-6 leading-relaxed">
+                    Explore my interactive 3D digital business card to learn more about my coaching philosophy, 
+                    connect with me on social media, and access my contact information in an engaging format.
+                  </p>
+                  <p className="text-lg text-gray-400 mb-8">
+                    The card features smooth 3D animations and contains all my professional details in one elegant interface.
+                  </p>
+                  <a
+                    href={DIGITAL_CARD_LINK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block bg-gradient-to-r from-purple-600 to-indigo-700 text-white py-4 px-8 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                  >
+                    <i data-feather="external-link" className="w-5 h-5 inline-block mr-2"></i>
+                    Open 3D Digital Card
+                  </a>
+                </div>
+                <div className="lg:w-1/2">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-gold-300 to-yellow-500 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+                    <div className="relative bg-gray-900 rounded-2xl p-6 border border-gold-400/50 shadow-xl">
+                      <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center border border-gold-400/30">
+                        <div className="text-center">
+                          <i data-feather="box" className="w-16 h-16 text-gold-300 mx-auto mb-4"></i>
+                          <p className="text-gold-200 text-lg font-semibold">3D Interactive Card</p>
+                          <p className="text-gray-400 mt-2">Click the button to explore</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -365,8 +414,8 @@ export default function CoachingPage() {
           <div className="bg-gray-800/60 rounded-2xl p-10 border border-gray-700 max-w-3xl mx-auto">
             <h3 className="text-2xl font-semibold text-white mb-6">Client Insights</h3>
             <div className="space-y-4 text-gray-300">
-              <p><span className="text-gold-300">💬</span> “I finally understood what I’m here to do.”</p>
-              <p><span className="text-gold-300">💬</span> “Fear no longer runs my decisions.”</p>
+              <p><span className="text-gold-300">💬</span> "I finally understood what I'm here to do."</p>
+              <p><span className="text-gold-300">💬</span> "Fear no longer runs my decisions."</p>
               <p className="text-sm text-gray-400 mt-6">* Identities protected. Real feedback from coaching sessions.</p>
             </div>
           </div>
@@ -382,7 +431,7 @@ export default function CoachingPage() {
         <div className="container mx-auto px-6 relative z-10" data-aos="zoom-in">
           <h2 className="text-5xl font-bold mb-6 text-center text-white font-freight">Invest in Your Purpose</h2>
           <p className="text-2xl text-gray-300 text-center mb-12 max-w-2xl mx-auto leading-relaxed">
-            One session can shift your trajectory. This is more than coaching—it’s a commitment to your highest self.
+            One session can shift your trajectory. This is more than coaching—it's a commitment to your highest self.
           </p>
           <div className="max-w-md mx-auto mb-8">
             <div className="bg-gray-800/70 p-6 rounded-2xl border border-gray-700 shadow-lg">
@@ -394,7 +443,7 @@ export default function CoachingPage() {
                 <li>Select your time slot below.</li>
                 <li>Complete payment of ₹99 via Razorpay.</li>
                 <li><strong>Include your slot number (1, 2, or 3) in the payment note.</strong></li>
-                <li>You’ll receive a confirmation and session link within 24 hours.</li>
+                <li>You'll receive a confirmation and session link within 24 hours.</li>
               </ul>
             </div>
           </div>
