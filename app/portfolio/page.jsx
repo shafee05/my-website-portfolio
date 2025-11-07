@@ -386,7 +386,7 @@ export default function PortfolioPage() {
               >
                 Live Demo
               </a>
-              <a
+              {/* <a
                 href="https://github.com/shafee05/imanverse"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -394,7 +394,7 @@ export default function PortfolioPage() {
                 onClick={(e) => e.stopPropagation()}
               >
                 View Code
-              </a>
+              </a> */}
             </div>
           </div>
 
