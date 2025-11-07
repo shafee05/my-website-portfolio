@@ -369,7 +369,7 @@ export default function PortfolioPage() {
                 </div>
               </a>
               <span className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity">
-                ImanVerse - Islamic Spiritual Platform (2024)
+                ImanVerse - Islamic Spiritual Platform (2025)
               </span>
             </div>
             <p className="text-shafee-lighter mb-4">
@@ -422,7 +422,7 @@ export default function PortfolioPage() {
                 </div>
               </a>
               <span className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity">
-                3D Digital Business Card (2024)
+                3D Digital Business Card (2025)
               </span>
             </div>
             <p className="text-shafee-lighter mb-4">
