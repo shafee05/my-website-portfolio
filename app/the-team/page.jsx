@@ -262,6 +262,46 @@ export default function TeamPage() {
               </div>
             </div>
 
+            <div className="mb-10 flex items-center flex-row-reverse">
+  <div className="w-1/2 pl-4 text-left relative">
+    <div className="opacity-0 animate-fadeIn animation-delay-7200">
+      <h3 className="text-lg font-medium">2025</h3>
+      <p className="text-lg text-altermind-dark-green/80">
+        Author — The Arcana of Ascent
+      </p>
+      <p className="text-lg text-altermind-dark-green/80">
+        Authored and published a reflective work exploring silence, inner discipline,
+        and personal transformation.
+      </p>
+    </div>
+  </div>
+
+  <div className="w-1/2 pr-4 relative">
+    <span className="inline-block w-3 h-3 bg-gray-800 rounded-full absolute left-1/2 transform -translate-x-1/2 z-10 opacity-0 animate-fadeIn animation-delay-7200"></span>
+  </div>
+</div>
+
+<div className="mb-10 flex items-center">
+  <div className="w-1/2 pr-4 text-right relative">
+    <div className="opacity-0 animate-fadeIn animation-delay-7400">
+      <h3 className="text-lg font-medium">2025</h3>
+      <p className="text-lg text-altermind-dark-green/80">
+        SaaS Fundamentals & Platform Learning
+      </p>
+      <p className="text-lg text-altermind-dark-green/80">
+        Studied SaaS fundamentals, product architecture, and platform workflows
+        through hands-on exploration and guided learning.
+      </p>
+    </div>
+  </div>
+
+  <div className="w-1/2 pl-4 relative">
+    <span className="inline-block w-3 h-3 bg-gray-800 rounded-full absolute left-1/2 transform -translate-x-1/2 z-10 opacity-0 animate-fadeIn animation-delay-7400"></span>
+  </div>
+</div>
+
+            
+
             {/* Hobbies & Creative Pursuits */}
             <div className="mt-12 text-center opacity-0 animate-fadeIn animation-delay-8000">
               <h3 className="text-2xl md:text-3xl font-semibold mb-6">Hobbies & Creative Pursuits</h3>

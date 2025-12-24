@@ -49,7 +49,7 @@ export default function AssetPage() {
               Only 100 will get in first. Will you be one of them?
             </p>
 
-            {/* Discover My Creative Journey */}
+            {/* Discover My Creative Journey
             <div className="flex justify-center mb-6">
               <Link
                 href="/the-team"
@@ -57,7 +57,7 @@ export default function AssetPage() {
               >
                 Discover My Creative Journey
               </Link>
-            </div>
+            </div> */}
 
             {/* Buttons */}
             <div className="flex flex-col md:flex-row justify-center gap-4">

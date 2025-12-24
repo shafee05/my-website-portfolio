@@ -12,91 +12,75 @@ const ContentSection = dynamic(() => import("@/components/sections/content-secti
 export default function Home() {
   const [showVideo, setShowVideo] = useState(false);
 
-  const handleVideoButtonClick = () => {
-    setShowVideo(true);
-  };
-
   return (
     <>
-      {/* Hero Section with Parallax Effect */}
       <Hero
         title="Mohammad Shafee"
         subtitle="Unleashing Creativity • Pioneering AI • Data Science Engineer • Life Coach"
         showButton={false}
-      >
-        <div className="mt-16 flex flex-col items-center space-y-8 animate-fadeIn">
-          <Link
-            href="/portfolio"
-            className="inline-block bg-white text-black py-2 px-4 rounded-lg font-semibold shadow-md hover:bg-gray-100 transition-all duration-300"
-          >
-            Explore My Journey →
-          </Link>
-          <a
-            href="/files/shafee_CV.pdf"
-            download="Mohammad_Shafee_CV.pdf"
-            className="inline-block bg-red-600 text-white py-2 px-6 rounded-lg font-medium shadow-lg hover:bg-red-700 transition-all duration-300 flex items-center space-x-2"
-          >
-            <span>Download My CV</span>
-            <span>↓</span>
-          </a>
-        </div>
-      </Hero>
-
-      <div className="my-16 w-full">
-        <SkillsMarquee />
-      </div>
+      />
 
       {/* === Section Navigation Bar === */}
-<nav
-  aria-label="Section navigation"
-  className="sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-white/10"
->
-  <div className="mx-auto max-w-7xl px-4">
-    <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 py-3 font-medium text-sm md:text-base">
-      {[
-        { id: "odyssey", label: "Odyssey", info: "Overview of my AI & Data Science journey" },
-        { id: "passion", label: "AI & Data Science", info: "My interests, goals, and passion for AI" },
-        { id: "skills", label: "Skills", info: "Technical and soft skills I bring to the table" },
-        { id: "experience", label: "Experience", info: "Internships and professional journey so far" },
-        { id: "coaching", label: "Life Coaching", info: "My guidance and personal growth support" },
-        { id: "projects", label: "Projects", info: "Featured projects and case studies" },
-        { id: "achievements", label: "Achievements", info: "Key milestones and competitions" },
-        { id: "education", label: "Education", info: "Academic background and certifications" },
-        { id: "contact", label: "Contact", info: "Ways to connect and collaborate with me" },
-      ].map((link) => (
-        <li key={link.id} className="relative group">
-          <a
-            href={`#${link.id}`}
-            className="
-              relative inline-flex items-center px-2 py-1 rounded-md
-              text-gray-300 transition-all duration-300 ease-out
-              hover:text-white hover:-translate-y-0.5 focus-visible:outline-none
-              focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900
-              before:absolute before:inset-0 before:rounded-md before:bg-white/5 before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100
-              after:absolute after:left-2 after:-bottom-0.5 after:h-0.5 after:w-0 after:bg-blue-500 after:rounded-full after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)]
-            "
-          >
-            {link.label}
-          </a>
-          {/* Tooltip */}
-          <div
-            className="
-              absolute top-full left-1/2 -translate-x-1/2 mt-2 w-max max-w-xs
-              opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100
-              transition duration-300 ease-out
-              bg-gray-800 text-gray-200 text-xs md:text-sm px-3 py-2 rounded-lg shadow-lg
-              pointer-events-none
-            "
-          >
-            {link.info}
-          </div>
-        </li>
-      ))}
-    </ul>
-  </div>
-</nav>
+      <nav
+        aria-label="Section navigation"
+        className="sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-white/10"
+      >
+        <div className="mx-auto max-w-7xl px-4">
+          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 py-3 font-medium text-sm md:text-base">
+            {[
+              { id: "odyssey", label: "Odyssey", info: "Overview of my AI & Data Science journey" },
+              { id: "book", label: "Book", info: "Discover my published book" },   // ✅ ADDED HERE
+              { id: "passion", label: "AI & Data Science", info: "My interests, goals, and passion for AI" },
+              { id: "skills", label: "Skills", info: "Technical and soft skills I bring to the table" },
+              { id: "experience", label: "Experience", info: "Internships and professional journey so far" },
+              { id: "coaching", label: "Life Coaching", info: "My guidance and personal growth support" },
+              { id: "projects", label: "Projects", info: "Featured projects and case studies" },
+              { id: "achievements", label: "Achievements", info: "Key milestones and competitions" },
+              { id: "education", label: "Education", info: "Academic background and certifications" },
+              { id: "contact", label: "Contact", info: "Ways to connect and collaborate with me" },
+            ].map((link) => (
+              <li key={link.id} className="relative group">
+                <a
+                  href={`#${link.id}`}
+                  className="
+                    relative inline-flex items-center px-2 py-1 rounded-md
+                    text-gray-300 transition-all duration-300 ease-out
+                    hover:text-white hover:-translate-y-0.5
+                    focus-visible:outline-none focus-visible:ring-2
+                    focus-visible:ring-blue-500/50 focus-visible:ring-offset-2
+                    focus-visible:ring-offset-gray-900
+                    before:absolute before:inset-0 before:rounded-md
+                    before:bg-white/5 before:opacity-0
+                    before:transition-opacity before:duration-300
+                    hover:before:opacity-100
+                    after:absolute after:left-2 after:-bottom-0.5
+                    after:h-0.5 after:w-0 after:bg-blue-500
+                    after:rounded-full after:transition-all after:duration-300
+                    hover:after:w-[calc(100%-1rem)]
+                  "
+                >
+                  {link.label}
+                </a>
 
-
+                {/* Tooltip */}
+                <div
+                  className="
+                    absolute top-full left-1/2 -translate-x-1/2 mt-2
+                    w-max max-w-xs opacity-0 scale-95
+                    group-hover:opacity-100 group-hover:scale-100
+                    transition duration-300 ease-out
+                    bg-gray-800 text-gray-200
+                    text-xs md:text-sm px-3 py-2
+                    rounded-lg shadow-lg pointer-events-none
+                  "
+                >
+                  {link.info}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
 
       {/* Video Modal */}
       {showVideo && (
@@ -127,16 +111,91 @@ export default function Home() {
 
       {/* Portfolio Section with Fade-In Transition */}
       <div id="odyssey">
-      <ContentSection
-        title="My AI & Data Science Odyssey<br/>Where Innovation Meets Passion"
-        paragraphs={[
-          "Step into the world of Mohammad Shafee ur Rahaman—a visionary Data Science Engineering student igniting a revolution in emotional intelligence through AI. With expertise in Generative AI, NLP, and emotionally resonant systems, I'm crafting a future where technology feels human. Curious? Dive deeper into the projects that define my journey.",
-          "This portfolio is more than a showcase—it's an invitation to explore the mind of a creator who blends data with dreams. Each project, skill, and achievement is a stepping stone to something extraordinary. Are you ready to be inspired?"
-        ]}
-        bgColor="bg-gradient-to-b from-gray-900 to-blue-950"
-        textColor="text-white"
-      />
+        <ContentSection
+          title="My AI & Data Science Odyssey<br/>Where Innovation Meets Passion"
+          paragraphs={[
+            "Step into the world of Mohammad Shafee ur Rahaman—a visionary Data Science Engineering student igniting a revolution in emotional intelligence through AI. With expertise in Generative AI, NLP, and emotionally resonant systems, I'm crafting a future where technology feels human. Curious? Dive deeper into the projects that define my journey.",
+            "This portfolio is more than a showcase—it's an invitation to explore the mind of a creator who blends data with dreams. Each project, skill, and achievement is a stepping stone to something extraordinary. Are you ready to be inspired?"
+          ]}
+          bgColor="bg-gradient-to-b from-gray-900 to-blue-950"
+          textColor="text-white"
+        />
       </div>
+
+      {/* Book Section */}
+      <section id="book" className="py-24 bg-gradient-to-r from-gray-900 to-blue-950 text-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div className="relative h-96">
+              <Image
+                src="/images/arcana-cover.jpg" // Make sure this file exists in /public/images
+                alt="The Arcana of Ascent Book Cover"
+                fill
+                className="object-cover rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+              />
+            </div>
+            <div>
+              <h2 className="font-freight text-4xl md:text-5xl mb-6 font-bold text-white">
+  The Arcana of Ascent
+</h2>
+
+<p className="text-lg text-silver-500 mb-8 leading-relaxed">
+  <strong>The Arcana of Ascent</strong> is a study in quiet power. It confronts the inner
+  territories most people bypass—where silence sharpens resolve, and endurance is forged
+  without witnesses. This book does not seek to inspire through optimism; it challenges
+  through recognition—recognition of the self stripped of illusion, distraction, and
+  performance.
+</p>
+
+<p className="text-lg text-silver-500 mb-8 leading-relaxed">
+  Built around the principle that transformation begins long before it is visible, the work
+  moves deliberately through themes of restraint, inner tension, and disciplined
+  self-awareness. It creates a psychological environment rather than a storyline—one that
+  mirrors the reader’s own unspoken struggles.
+</p>
+
+<p className="text-lg text-silver-500 leading-relaxed">
+  As both author and life coach, the voice behind <strong>The Arcana of Ascent</strong> remains
+  measured, grounded, and intentional. There is no persuasion here—only presence. The book
+  stands as an invitation to those prepared to confront themselves honestly and rise without
+  announcement.
+</p>
+
+
+              <div className="flex space-x-4">
+                <a
+                  href="https://amzn.to/4pccTFI"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block bg-royal-blue text-white py-2 px-6 rounded-lg font-medium shadow-lg hover:bg-royal-blue-dark transition-all duration-300"
+                >
+
+                  Buy eBook
+                </a>
+                <a
+                  href="https://www.amazon.com/dp/B0G53KB8SH"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block bg-royal-blue text-white py-2 px-6 rounded-lg font-medium shadow-lg hover:bg-royal-blue-dark transition-all duration-300"
+                >
+                  Buy Physical Book
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <style jsx>{`
+          .text-silver-500 {
+            color: #A0A0A0;
+          }
+          .bg-royal-blue {
+            background-color: #4169E1;
+          }
+          .bg-royal-blue-dark {
+            background-color: #1E40AF;
+          }
+        `}</style>
+      </section>
 
       {/* AI & Data Science Passion Section with Image */}
       <section id="passion" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white">
@@ -247,7 +306,7 @@ export default function Home() {
         `}</style>
       </section>
 
-            {/* Work Experience / Internship Section */}
+      {/* Work Experience / Internship Section */}
       <section id="experience" className="py-24 bg-gradient-to-r from-gray-900 to-blue-950 text-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
@@ -258,12 +317,6 @@ export default function Home() {
               <div className="bg-blue-950 p-8 rounded-lg shadow-silver transition-all duration-300 hover:shadow-gold">
                 <h3 className="text-2xl font-semibold text-gold-300 mb-2">Python Engineer – Gen AI Intern</h3>
                 <p className="text-lg text-silver-500 mb-4">ADVI Group of Companies · Feb 2025 – Aug 2025 · Hyderabad</p>
-                {/* <ul className="space-y-3 text-silver-500 list-disc pl-5">
-                  <li>Developed and deployed Python-based Generative AI solutions, improving LLM output accuracy by 20%.</li>
-                  <li>Built AI pipelines with Hugging Face Transformers, LangChain, and REST APIs, reducing inference time by 25%.</li>
-                  <li>Automated text and image-based workflows, boosting productivity by 30%.</li>
-                  <li>Collaborated with teams to deliver AI-driven features, cutting project timelines by 15%.</li>
-                </ul> */}
               </div>
             </div>
             <div className="flex justify-center mt-12">
