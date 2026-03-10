@@ -1,817 +1,449 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 
-const Hero = dynamic(() => import("@/components/sections/hero"), { ssr: false });
+const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"), { ssr: false, loading: () => null });
 
-export default function PortfolioPage() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [currentProject, setCurrentProject] = useState(null);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
+// ─── Hook — called only at top level of components below ─────────────────────
+function useReveal(delay = 0) {
+  const ref = useRef(null);
+  const [v, setV] = useState(false);
   useEffect(() => {
-    setIsLoaded(true);
+    const el = ref.current; if (!el) return;
+    let tm;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { tm = setTimeout(() => setV(true), delay); obs.disconnect(); }
+    }, { threshold: 0.05, rootMargin: "0px 0px -40px 0px" });
+    obs.observe(el);
+    return () => { obs.disconnect(); clearTimeout(tm); };
+  }, []); // empty deps — intentional, delay is captured at mount
+  return { ref, visible: v };
+}
 
-    const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
-    };
+// ─── SVG Icons ────────────────────────────────────────────────────────────────
+const IconGithub = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
+    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+  </svg>
+);
+const IconLinkedIn = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+const IconMail = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+  </svg>
+);
+const IconCopy = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+  </svg>
+);
+const IconPin = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+  </svg>
+);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+// ─── CV Data ──────────────────────────────────────────────────────────────────
+const SKILLS = [
+  { group: "Programming",            items: ["Python", "C++", "SQL"] },
+  { group: "AI & Machine Learning",  items: ["Generative AI", "NLP", "Prompt Engineering", "LightGBM", "ML Prediction Models"] },
+  { group: "Frameworks & Libraries", items: ["PyTorch", "Hugging Face", "LangChain"] },
+  { group: "Web Technologies",       items: ["HTML", "CSS", "React"] },
+  { group: "Tools & Systems",        items: ["Git", "Linux", "Power BI", "MS Office"] },
+  { group: "Core Concepts",          items: ["DSA", "OOP", "Model Evaluation", "Workflow Automation"] },
+];
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+const EXPERIENCE = [
+  {
+    role: "Python Engineer Intern — Generative AI",
+    company: "ADVI Group of Companies",
+    location: "Hyderabad, India",
+    period: "Feb 2025 – Jul 2025",
+    bullets: [
+      "Designed and deployed LLM-based automation pipelines using Hugging Face and LangChain for structured and unstructured data.",
+      "Automated internal workflows, reducing team processing effort by 30%.",
+      "Optimised prompt design and backend inference, improving overall system efficiency by 25%.",
+      "Led testing and documentation to ensure reliability and smooth handoff of AI modules.",
+    ],
+  },
+];
 
-  // Programming Languages
-  const programmingSkills = ["Python", "C++"];
+const PROJECTS = [
+  {
+    title: "GestureTalk",
+    subtitle: "Real-Time Sign Language Recognition",
+    year: "2025",
+    desc: "Computer vision + NLP system using YOLO, DWpose, and PyTorch for real-time sign language translation. Achieved 25 FPS inference with translation accuracy above 92%.",
+    tags: ["Python", "YOLO", "PyTorch", "Computer Vision", "NLP"],
+    category: "AI",
+    href: "https://github.com/shafee05/GestureTalk-Sign-Language-Recognition",
+    image: "/images/gesturetalk.jpg",
+    metric: "92% accuracy",
+    metricB: "25 FPS",
+  },
+  {
+    title: "Cricket Performance Prediction",
+    subtitle: "ML Pipeline · LightGBM",
+    year: "2024",
+    desc: "ML pipeline in Python using LightGBM trained on historical player and match data. Improved prediction accuracy by 15% RMSE reduction over baseline models.",
+    tags: ["Python", "LightGBM", "Data Science", "ML"],
+    category: "AI",
+    href: "https://github.com/shafee05/Cricket-Player-Performance-prediction",
+    image: "/images/cricket.jpg",
+    metric: "−15% RMSE",
+    metricB: "vs. baseline",
+  },
+  {
+    title: "Personal Habit Tracker",
+    subtitle: "React + TypeScript · AI-Assisted",
+    year: "2025",
+    desc: "Modular React + TypeScript web application. Structured use of Generative AI prompts to accelerate development while owning all logic and design decisions.",
+    tags: ["React", "TypeScript", "Gen AI"],
+    category: "Web",
+    href: "#",
+    metric: "AI-assisted",
+    metricB: "Full-stack",
+  },
+];
 
-  // AI & ML Skills
-  const aiSkills = [
-    "Prompt Engineering",
-    "Few-shot & Zero-shot Learning",
-  ];
+const EDUCATION = [
+  { degree: "B.Tech — Computer Science (Data Science)", institution: "ACE Engineering College, Hyderabad", period: "2021 – 2025", detail: "CGPA 7.71" },
+  { degree: "MPC — Maths, Physics, Chemistry",          institution: "Narayana Junior College, Hyderabad",  period: "2019 – 2021", detail: "92.3%" },
+];
 
-  // Data Analytics Skills
-  const dataSkills = [
-    "SQL",
-    "Pandas",
-    "NumPy",
-    "Tableau",
-    "Power BI",
-    "Data Visualization",
-    "Statistical Analysis",
-  ];
+const CERTS = [
+  { name: "Prompt Engineering for Generative AI", issuer: "Industry Certified" },
+  { name: "Python Programming",                   issuer: "Rinex" },
+  { name: "UiPath RPA Fundamentals",              issuer: "Infosys Foundation" },
+  { name: "Data Science AI Interview Certified",  issuer: "Micro1" },
+  { name: "Business English Certificate",         issuer: "Cambridge University" },
+];
 
-  // Soft Skills
-  const softSkills = [
-    "Critical Thinking",
-    "Communication",
-    "Problem Solving",
-    "Team Collaboration",
-  ];
-
-  // Certifications
-  const certifications = [
-    "UiPath RPA – Infosys Foundation",
-    "Cambridge Business English Certificate – Proficiency in professional communication",
-    "Python Programming – Rinex",
-    "Certified Data Science Engineering Student – Micro1",
-    "Prompt Engineering Certificate from 1 Million Prompters by Dubai Prince",
-    "Salesforce VIP Internship",
-   ];
-
-  // Image path (replace with your actual image path)
-  const profileImage = "/images/portfolio-headshot.png"; // Verify this path
-
-  // Popup content for Cricket Player Performance Prediction
-  const cricketProjectPopupContent = {
-    objective: "Predict cricket player performance (batsmen and bowlers) using ML models like Decision Tree and LightGBM.",
-    workflow: "Includes data preprocessing, feature engineering, model training, and prediction using match-related stats.",
-    accuracy: "Decision Tree achieves ~91% and LightGBM ~95% accuracy on training data.",
-    usage: "Users can run the notebook to train models and predict performance using structured inputs (e.g., X_predict.csv).",
-    disclaimer: "Datasets are for academic/demo use only.",
-    githubUrl: "https://github.com/shafee05/Cricket-Player-Performance-prediction",
-  };
-
-  // Popup content for GestureTalk Project
-  const gestureTalkPopupContent = {
-    objective: "Develop a real-time sign language communication system for deaf and hearing users.",
-    workflow: "Utilizes YOLO and DWpose for gesture recognition, 3D avatar animation for realistic sign representation, and integrates Google Speech API and NLP (NLTK/transformers) for two-way communication.",
-    optimization: "Optimized with OpenCV, PyTorch, and real-time inference pipelines.",
-    githubUrl: "https://github.com/shafee05/GestureTalk-Sign-Language-Recognition",
-  };
-
-  // Popup content for ImanVerse Project
-  const imanVersePopupContent = {
-    objective: "A comprehensive Islamic platform providing spiritual resources and educational content for the Muslim community.",
-    features: "Complete Quran access with translations, prayer times, Islamic knowledge library, daily duas, and educational resources.",
-    technology: "Built with Next.js, TypeScript, Tailwind CSS, and integrated with Quran API for authentic content delivery.",
-    purpose: "To make Islamic knowledge accessible and provide a modern digital platform for spiritual growth and learning.",
-    liveUrl: "https://imanverse.vercel.app/",
-    githubUrl: "https://github.com/shafee05/imanverse",
-  };
-
-  // Popup content for Digital Card Project
-  const digitalCardPopupContent = {
-    objective: "An interactive 3D digital business card showcasing professional information with modern web technologies.",
-    features: "3D animations, smooth transitions, professional layout, and responsive design for all devices.",
-    technology: "Built with HTML5, CSS3, JavaScript, and 3D CSS transformations for an immersive experience.",
-    purpose: "To provide an engaging and memorable digital introduction for professional networking and connections.",
-    liveUrl: "https://shafee05.github.io/sha-digital-card/",
-    githubUrl: "https://github.com/shafee05/sha-digital-card",
-  };
-
+// ─── Atom components (each calls useReveal internally — hooks-safe) ───────────
+function Pill({ label, accent }) {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-muted">
-        <div className="absolute inset-0 bg-black/50"></div>
+    <span style={{
+      fontSize: "9px", letterSpacing: "0.12em", padding: "3px 9px", borderRadius: "99px",
+      background: accent ? "rgba(100,165,255,0.10)" : "rgba(255,255,255,0.06)",
+      border: accent ? "1px solid rgba(100,165,255,0.28)" : "1px solid rgba(255,255,255,0.10)",
+      color: accent ? "rgba(160,210,255,0.85)" : "rgba(200,215,255,0.55)",
+      whiteSpace: "nowrap",
+    }}>{label}</span>
+  );
+}
 
-        <div className="container mx-auto px-4 relative z-10 text-center py-20">
-          <h1
-            className={`font-freight text-4xl md:text-6xl lg:text-7xl text-secondary mb-6 transition-all duration-1000 transform ${
-              isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-            }`}
-          >
-            Mohammad Shafee ur Rahaman
-          </h1>
+function Rule() {
+  return <div style={{ height: "1px", background: "rgba(255,255,255,0.05)", margin: "56px 0" }} />;
+}
 
-          <p
-            className={`text-lg md:text-xl text-secondary font-light max-w-2xl mx-auto transition-all duration-1000 delay-300 transform ${
-              isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-            }`}
-          >
-            Creative Developer • AI Enthusiast • Data Science Engineer
-          </p>
+function SecLabel({ text }) {
+  return <p style={{ fontSize: "9px", letterSpacing: "0.6em", textTransform: "uppercase", color: "rgba(100,165,255,0.55)", marginBottom: "32px" }}>{text}</p>;
+}
 
-          <div
-            className={`mt-8 flex justify-center space-x-6 transition-all duration-1000 delay-500 transform ${
-              isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-            }`}
-          >
-            <div className="flex items-center text-secondary">
-              <span className="mr-2"></span>
-              <span>📍Hyderabad, India</span>
-            </div>
-            <div className="flex items-center text-secondary">
-              <span className="mr-2"></span>
-              <a
-                href="mailto:md.shafee05s@gmail.com"
-                className="hover:underline"
-              >
-                📧 md.shafee05s@gmail.com
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Me Section with Circular Profile Picture */}
-      <section className="portfolio-section bg-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center py-10">
-            {/* Image Column (Circular Profile Pic) */}
-            <div className="order-1 md:order-1 flex justify-center">
-              <div className="relative w-80 h-80 overflow-hidden rounded-full shadow-lg transition-all duration-300 border-4 border-shafee-dark">
-                <Image
-                  src={profileImage}
-                  fill
-                  className="object-cover transition-transform duration-300 hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  onError={(e) => console.error("Image failed to load:", e)}
-                />
-              </div>
-            </div>
-
-            {/* Text Column */}
-            <div className="order-2 md:order-2">
-              <h2 className="portfolio-heading text-foreground">About Me</h2>
-              <div className="order-2 md:order-2">
-                {/* Hook */}
-                <p className="mb-6 text-lg font-medium">
-                  Some stories are written in code, others in ambition.  
-                  Mine is written in both.
-                </p>
-
-                {/* First paragraph */}
-                <p className="mb-4">
-                  I am <span className="font-semibold">Mohammad Shafee ur Rahaman</span>, a 
-                  Data Science Engineering graduate from ACE Engineering College, and my 
-                  pursuit has never been ordinary. Where others see artificial intelligence 
-                  as a tool of efficiency, I see it as a canvas of 
-                  <span className="italic"> expression, empathy, and transformation</span>.
-                </p>
-
-                {/* Second paragraph */}
-                <p className="mb-4">
-                  At ADVI Group of Companies, I engineered Generative AI pipelines that 
-                  elevated accuracy, reduced latency, and reshaped how teams approached 
-                  innovation. In my projects—whether building <span className="font-semibold">GestureTalk</span>, 
-                  a real-time sign language recognition and animation system, or predicting 
-                  performance in cricket through intelligent models—I've proven that AI can 
-                  be more than just functional. It can be <span className="italic">human at its core</span>.
-                </p>
-
-                {/* Third paragraph */}
-                <p className="mb-4">
-                  Armed with Python, Machine Learning, NLP, and a deep command over prompt 
-                  engineering, I design systems not merely to process data, but to 
-                  <span className="font-semibold"> influence behavior, inspire trust, and create 
-                  experiences that linger</span>.
-                </p>
-
-                {/* Final punchline */}
-                <p className="mt-6 text-xl font-semibold italic">
-                  Because the next era of intelligence will not belong to machines that 
-                  think faster—<br />
-                  It will belong to machines that understand deeper.
-                </p>
-    
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Education Section */}
-      <section className="portfolio-section bg-muted">
-        <div className="container mx-auto px-4">
-          <h2 className="portfolio-heading text-foreground">Education</h2>
-
-          <div className="mb-6">
-            <h3 className="text-xl font-medium text-foreground">
-              ACE Engineering College, Hyderabad
-            </h3>
-            <p className="text-shafee-lighter">
-              B.Tech in CSE - Data Science (2021–2025) – GPA: 7.71
-            </p>
-          </div>
-
-          <div className="mb-6">
-            <h3 className="text-xl font-medium text-foreground">
-              Narayana Junior College
-            </h3>
-            <p className="text-shafee-lighter">Intermediate -MPC (2019-2021) – 92.3%</p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-medium text-foreground">
-              NS Grammar High School
-            </h3>
-            <p className="text-shafee-lighter">SSC – GPA: 9.3</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Internship Section */}
-      <section className="portfolio-section bg-background">
-        <div className="container mx-auto px-4">
-          <h2 className="portfolio-heading text-foreground">Internship Experience</h2>
-
-          <div className="mb-6">
-            <h3 className="text-xl font-medium text-foreground">
-              Python Engineer – Gen AI Intern
-            </h3>
-            <p className="text-shafee-lighter">
-              ADVI Group of Companies · Feb 2025 – Jul 2025 · Hyderabad
-            </p>
-            <ul className="list-disc pl-5 text-foreground mt-4">
-              <li className="mb-3">Developed and deployed Python-based Generative AI solutions, improving LLM output accuracy by 20%.</li>
-              <li className="mb-3">Built AI pipelines with Hugging Face Transformers, LangChain, and REST APIs, reducing inference time by 25%.</li>
-              <li className="mb-3">Automated text and image-based workflows, boosting productivity by 30%.</li>
-              <li className="mb-3">Collaborated with teams to deliver AI-driven features, cutting project timelines by 15%.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section className="portfolio-section bg-muted">
-        <div className="container mx-auto px-4">
-          <h2 className="portfolio-heading text-foreground">Skills</h2>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Programming Skills */}
-            <div>
-              <h3 className="portfolio-subheading text-foreground mb-4">
-                Programming Languages
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {programmingSkills.map((skill, index) => (
-                  <span key={index} className="skill-tag">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* AI & ML Skills */}
-            <div>
-              <h3 className="portfolio-subheading text-foreground mb-4">
-                AI & Machine Learning
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {aiSkills.map((skill, index) => (
-                  <span key={index} className="skill-tag">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Data Analytics Skills */}
-            <div>
-              <h3 className="portfolio-subheading text-foreground mb-4">
-                Data Analytics
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {dataSkills.map((skill, index) => (
-                  <span key={index} className="skill-tag">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Soft Skills */}
-            <div>
-              <h3 className="portfolio-subheading text-foreground mb-4">
-                Soft Skills
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {softSkills.map((skill, index) => (
-                  <span key={index} className="skill-tag">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Projects Section */}
-      <section className="portfolio-section bg-background">
-        <div className="container mx-auto px-4">
-          <h2 className="portfolio-heading text-foreground">Projects</h2>
-
-          {/* ImanVerse Project */}
-          <div
-            className="project-card"
-            onClick={() => { setIsPopupOpen(true); setCurrentProject("imanVerse"); }}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="flex items-center space-x-2 mb-2">
-              <a
-                href="https://github.com/shafee05/imanverse"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="relative w-6 h-6">
-                  <Image
-                    src="/svg/github.svg"
-                    alt="GitHub Repository"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </a>
-              <span className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity">
-                ImanVerse - Islamic Spiritual Platform (2025)
-              </span>
-            </div>
-            <p className="text-shafee-lighter mb-4">
-              A comprehensive Islamic platform built with Next.js and TypeScript, providing Quran access with translations, 
-              prayer times, Islamic knowledge library, and educational resources for the Muslim community.
-            </p>
-            <div className="flex space-x-4">
-              <a
-                href="https://imanverse.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm bg-accent hover:bg-shafee-medium text-secondary px-3 py-1 rounded transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Live Demo
-              </a>
-              {/* <a
-                href="https://github.com/shafee05/imanverse"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm bg-accent hover:bg-shafee-medium text-secondary px-3 py-1 rounded transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View Code
-              </a> */}
-            </div>
-          </div>
-
-          {/* Digital Card Project */}
-          <div
-            className="project-card"
-            onClick={() => { setIsPopupOpen(true); setCurrentProject("digitalCard"); }}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="flex items-center space-x-2 mb-2">
-              <a
-                href="https://github.com/shafee05/sha-digital-card"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="relative w-6 h-6">
-                  <Image
-                    src="/svg/github.svg"
-                    alt="GitHub Repository"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </a>
-              <span className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity">
-                3D Digital Business Card (2025)
-              </span>
-            </div>
-            <p className="text-shafee-lighter mb-4">
-              An interactive 3D digital business card featuring smooth animations and modern design. 
-              Built with HTML5, CSS3, and JavaScript to create an engaging professional introduction.
-            </p>
-            <div className="flex space-x-4">
-              <a
-                href="https://shafee05.github.io/sha-digital-card/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm bg-accent hover:bg-shafee-medium text-secondary px-3 py-1 rounded transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View Card
-              </a>
-              <a
-                href="https://github.com/shafee05/sha-digital-card"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm bg-accent hover:bg-shafee-medium text-secondary px-3 py-1 rounded transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View Code
-              </a>
-            </div>
-          </div>
-
-          {/* GestureTalk Project */}
-          <div
-            className="project-card"
-            onClick={() => { setIsPopupOpen(true); setCurrentProject("gestureTalk"); }}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="flex items-center space-x-2 mb-2">
-              <a
-                href="https://github.com/shafee05/GestureTalk-Sign-Language-Recognition"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="relative w-6 h-6">
-                  <Image
-                    src="/svg/github.svg"
-                    alt="GitHub Repository"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </a>
-              <span className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity">
-                GestureTalk Real-Time Sign Language Recognition and Animation System (2025)
-              </span>
-            </div>
-            <p className="text-shafee-lighter mb-4">
-              Developed a real-time sign language communication system using YOLO and DWpose for gesture recognition, 
-              3D avatar animation for realistic sign representation, and integrated Google Speech API and NLP 
-              (NLTK/transformers) for two-way communication between deaf and hearing users, optimized with OpenCV, 
-              PyTorch, and real-time inference pipelines.
-            </p>
-          </div>
-
-          {/* Cricket Project */}
-          <div
-            className="project-card"
-            onClick={() => { setIsPopupOpen(true); setCurrentProject("cricket"); }}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="flex items-center space-x-2 mb-2">
-              <a
-                href="https://github.com/shafee05/Cricket-Player-Performance-prediction"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="relative w-6 h-6">
-                  <Image
-                    src="/svg/github.svg"
-                    alt="GitHub Repository"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </a>
-              <span className="text-xl font-medium text-foreground hover:opacity-80 hover:underline transition-opacity">
-                🏏 Cricket Player Performance Prediction (2024)
-              </span>
-            </div>
-            <p className="text-shafee-lighter mb-4">
-              Built a predictive ML model using Python and Pandas. Improved
-              match outcome predictions by 15% through algorithm optimization.
-            </p>
-          </div>
-        </div>
-
-        {/* Popup Modal for Projects */}
-        {isPopupOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setIsPopupOpen(false);
-            }}
-          >
-            <div
-              className="bg-background p-6 rounded-lg shadow-lg relative text-foreground"
-              style={{ maxWidth: "768px", aspectRatio: "8 / 4" }}
-            >
-              <button
-                className="absolute top-4 right-4 text-foreground text-2xl w-8 h-8 flex items-center justify-center bg-accent rounded-full"
-                onClick={() => setIsPopupOpen(false)}
-              >
-                ×
-              </button>
-
-              {currentProject === "gestureTalk" ? (
-                <>
-                  <h3 className="text-2xl font-semibold mb-4">
-                    GestureTalk Real-Time Sign Language Recognition (2025)
-                  </h3>
-                  <div className="space-y-4 overflow-y-auto h-full pr-2">
-                    <p><strong>Objective:</strong> {gestureTalkPopupContent.objective}</p>
-                    <p><strong>Workflow:</strong> {gestureTalkPopupContent.workflow}</p>
-                    <p><strong>Optimization:</strong> {gestureTalkPopupContent.optimization}</p>
-                    <a
-                      href={gestureTalkPopupContent.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-6 bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
-                    >
-                      View on GitHub
-                      <div className="relative w-4 h-4">
-                        <Image
-                          src="/svg/github.svg"
-                          alt="GitHub Repository"
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                    </a>
-                  </div>
-                </>
-              ) : currentProject === "cricket" ? (
-                <>
-                  <h3 className="text-2xl font-semibold mb-4">
-                    Cricket Player Performance Prediction (2024)
-                  </h3>
-                  <div className="space-y-4 overflow-y-auto h-full pr-2">
-                    <p><strong>Objective:</strong> {cricketProjectPopupContent.objective}</p>
-                    <p><strong>Workflow:</strong> {cricketProjectPopupContent.workflow}</p>
-                    <p><strong>Accuracy:</strong> {cricketProjectPopupContent.accuracy}</p>
-                    <p><strong>Usage:</strong> {cricketProjectPopupContent.usage}</p>
-                    <p><strong>Disclaimer:</strong> {cricketProjectPopupContent.disclaimer}</p>
-                    <a
-                      href={cricketProjectPopupContent.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-6 bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
-                    >
-                      View on GitHub
-                      <div className="relative w-4 h-4">
-                        <Image
-                          src="/svg/github.svg"
-                          alt="GitHub Repository"
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                    </a>
-                  </div>
-                </>
-              ) : currentProject === "imanVerse" ? (
-                <>
-                  <h3 className="text-2xl font-semibold mb-4">
-                    ImanVerse - Islamic Spiritual Platform (2024)
-                  </h3>
-                  <div className="space-y-4 overflow-y-auto h-full pr-2">
-                    <p><strong>Objective:</strong> {imanVersePopupContent.objective}</p>
-                    <p><strong>Features:</strong> {imanVersePopupContent.features}</p>
-                    <p><strong>Technology:</strong> {imanVersePopupContent.technology}</p>
-                    <p><strong>Purpose:</strong> {imanVersePopupContent.purpose}</p>
-                    <div className="flex space-x-4 mt-6">
-                      <a
-                        href={imanVersePopupContent.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
-                      >
-                        Live Demo
-                      </a>
-                      <a
-                        href={imanVersePopupContent.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
-                      >
-                        View on GitHub
-                        <div className="relative w-4 h-4">
-                          <Image
-                            src="/svg/github.svg"
-                            alt="GitHub Repository"
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-2xl font-semibold mb-4">
-                    3D Digital Business Card (2024)
-                  </h3>
-                  <div className="space-y-4 overflow-y-auto h-full pr-2">
-                    <p><strong>Objective:</strong> {digitalCardPopupContent.objective}</p>
-                    <p><strong>Features:</strong> {digitalCardPopupContent.features}</p>
-                    <p><strong>Technology:</strong> {digitalCardPopupContent.technology}</p>
-                    <p><strong>Purpose:</strong> {digitalCardPopupContent.purpose}</p>
-                    <div className="flex space-x-4 mt-6">
-                      <a
-                        href={digitalCardPopupContent.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
-                      >
-                        View Card
-                      </a>
-                      <a
-                        href={digitalCardPopupContent.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block bg-accent hover:bg-shafee-medium text-secondary py-2 px-4 rounded-md transition-colors"
-                      >
-                        View on GitHub
-                        <div className="relative w-4 h-4">
-                          <Image
-                            src="/svg/github.svg"
-                            alt="GitHub Repository"
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+// Proper component — useReveal called at top level
+function ProjectCard({ proj }) {
+  const { ref, visible } = useReveal(0);
+  return (
+    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(16px)", transition: "opacity 0.5s ease, transform 0.5s ease", willChange: "opacity, transform" }}>
+      <div
+        style={{ display: "flex", background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", overflow: "hidden", transition: "border-color 0.3s, box-shadow 0.3s", cursor: proj.href !== "#" ? "pointer" : "default" }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(100,165,255,0.28)"; e.currentTarget.style.boxShadow = "0 0 24px rgba(60,120,255,0.08)"; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }}
+        onClick={() => { if (proj.href !== "#") window.open(proj.href, "_blank"); }}
+      >
+        {proj.image && (
+          <div style={{ position: "relative", width: "clamp(72px,14vw,110px)", flexShrink: 0 }}>
+            <Image src={proj.image} alt={proj.title} fill style={{ objectFit: "cover", opacity: 0.50 }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, transparent 40%, rgba(3,5,18,1))" }} />
           </div>
         )}
-      </section>
-
-      {/* Certifications Section */}
-      <section className="portfolio-section bg-muted">
-        <div className="container mx-auto px-4">
-          <a
-            href="https://www.linkedin.com/in/mohammad-shafee05"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="portfolio-heading text-foreground flex items-center hover:opacity-80 transition-opacity"
-          >
-            <h2 className="flex items-center">
-              Certifications{" "}
-              <div className="relative w-6 h-6 ml-3">
-                <Image
-                  src="/svg/linkedin.svg"
-                  alt="LinkedIn Profile"
-                  fill
-                  className="object-contain"
-                />
+        <div style={{ flex: 1, padding: "20px clamp(16px,3vw,26px)", minWidth: 0 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: "6px", marginBottom: "6px" }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                <h3 style={{ fontSize: "clamp(14px,2vw,16px)", fontWeight: 600, color: "#e4e8f8", margin: 0 }}>{proj.title}</h3>
+                {proj.href !== "#" && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "10px", color: "rgba(140,200,255,0.55)" }}>
+                    <IconGithub /> View
+                  </span>
+                )}
               </div>
-            </h2>
-          </a>
-
-          <ul className="list-disc pl-5 text-foreground">
-            {certifications.map((cert, index) => (
-              <li key={index} className="mb-3">
-                {cert}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Activities & Achievements */}
-      <section className="portfolio-section bg-background">
-        <div className="container mx-auto px-4">
-          <h2 className="portfolio-heading text-foreground">Activities & Achievements</h2>
-
-          <ul className="list-disc pl-5 text-foreground">
-            <li className="mb-3">Hack-A-Bot Winner – Campus-level AI competition</li>
-            <li className="mb-3">
-              Flipkart Grid 5.0 – (participated) National tech innovation
-              challenge, 2024
-            </li>
-            <li className="mb-3">
-              T-Hub Visit – Practical skill-building session through community &
-              tech exercises
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="portfolio-section bg-background">
-        <div className="container mx-auto px-4">
-          <h2 className="portfolio-heading text-foreground">Contact</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <p className="mb-3">
-                <a
-                  href="https://www.youtube.com/@_shafee_05_"
-                  className="ml-2 text-xl text-shafee-lighter hover:text-foreground"
-                >
-                  Youtube
-                </a>
-              </p>
-              <p className="mb-3">
-                <a
-                  href="https://www.instagram.com/_shafee_05_"
-                  className="ml-2 text-xl text-shafee-lighter hover:text-foreground"
-                >
-                  Instagram
-                </a>
-              </p>
+              <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.30)", marginTop: "2px", marginBottom: 0 }}>{proj.subtitle}</p>
             </div>
-            <div>
-              <p className="mb-3">
-                <a
-                  href="mailto:md.shafee05s@gmail.com"
-                  className="ml-2 text-xl text-shafee-lighter hover:text-foreground"
-                >
-                  Gmail
-                </a>
-              </p>
-              <p className="mb-3">
-                <a
-                  href="https://www.linkedin.com/in/mohammad-shafee05"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-2 text-xl text-shafee-lighter hover:text-foreground"
-                >
-                  LinkedIn
-                </a>
-              </p>
-              <p className="mb-3">
-                <a
-                  href="https://github.com/shafee05"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-2 text-xl text-shafee-lighter hover:text-foreground"
-                >
-                  Github
-                </a>
-              </p>
+            <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.25)", flexShrink: 0 }}>{proj.year}</span>
+          </div>
+          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.42)", lineHeight: 1.82, margin: "10px 0 12px" }}>{proj.desc}</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", alignItems: "center" }}>
+            {proj.tags.map(t => <Pill key={t} label={t} accent />)}
+            <div style={{ marginLeft: "auto", display: "flex", gap: "5px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <span style={{ fontSize: "9px", color: "rgba(100,200,140,0.85)", background: "rgba(100,200,140,0.08)", border: "1px solid rgba(100,200,140,0.18)", padding: "2px 8px", borderRadius: "99px", whiteSpace: "nowrap" }}>✓ {proj.metric}</span>
+              <span style={{ fontSize: "9px", color: "rgba(200,215,255,0.55)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", padding: "2px 8px", borderRadius: "99px", whiteSpace: "nowrap" }}>{proj.metricB}</span>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+  );
+}
 
-      {/* Call To Action */}
-      <section className="py-16 bg-muted text-center">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl mb-6 font-freight text-foreground">
-            Interested in working with me?
-          </h2>
-          <a
-            href="mailto:md.shafee05s@gmail.com"
-            className="inline-block bg-accent hover:bg-shafee-medium text-secondary px-8 py-3 rounded-md transition-colors"
-          >
-            Get in touch
-          </a>
+function SkillGroup({ group, items }) {
+  const { ref, visible } = useReveal(0);
+  return (
+    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(14px)", transition: "opacity 0.45s ease, transform 0.45s ease", willChange: "opacity, transform", background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", padding: "18px" }}
+      onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(100,165,255,0.22)"}
+      onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}>
+      <p style={{ fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase", color: "rgba(100,165,255,0.50)", marginBottom: "12px" }}>{group}</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+        {items.map(item => <Pill key={item} label={item} accent />)}
+      </div>
+    </div>
+  );
+}
+
+function CertCard({ name, issuer }) {
+  const { ref, visible } = useReveal(0);
+  return (
+    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)", transition: "opacity 0.45s ease, transform 0.45s ease", willChange: "opacity, transform", display: "flex", gap: "12px", alignItems: "flex-start", background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", padding: "16px 18px" }}
+      onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(100,165,255,0.22)"}
+      onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}>
+      <span style={{ color: "rgba(100,200,130,0.70)", fontSize: "13px", flexShrink: 0, marginTop: "1px" }}>✓</span>
+      <div style={{ minWidth: 0 }}>
+        <p style={{ fontSize: "12.5px", fontWeight: 500, color: "#dde0f0", marginBottom: "3px", lineHeight: 1.4 }}>{name}</p>
+        <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.28)", letterSpacing: "0.04em" }}>{issuer}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+export default function Portfolio() {
+  const [filter, setFilter]     = useState("All");
+  const [copied, setCopied]     = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  // Each section reveal — hooks at top level ✓
+  const { ref: heroRef,   visible: heroIn }   = useReveal(0);
+  const { ref: expRef,    visible: expIn }    = useReveal(0);
+  const { ref: projRef,   visible: projIn }   = useReveal(0);
+  const { ref: skillsRef, visible: skillsIn } = useReveal(0);
+  const { ref: eduRef,    visible: eduIn }    = useReveal(0);
+  const { ref: certRef,   visible: certIn }   = useReveal(0);
+  const { ref: ctaRef,    visible: ctaIn }    = useReveal(0);
+
+  useEffect(() => {
+    const h = () => {
+      const d = document.documentElement;
+      const pct = d.scrollTop / (d.scrollHeight - d.clientHeight);
+      setProgress(isNaN(pct) ? 0 : pct);
+    };
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText("md.shafee05s@gmail.com").then(() => {
+      setCopied(true); setTimeout(() => setCopied(false), 2200);
+    });
+  };
+
+  const filtered = filter === "All" ? PROJECTS : PROJECTS.filter(p => p.category === filter);
+
+  return (
+    <>
+      <ParticleBackground />
+      <div style={{ position: "fixed", inset: 0, background: "rgba(2,4,14,0.90)", zIndex: 0, pointerEvents: "none" }} />
+      <div style={{ position: "fixed", top: 0, left: 0, zIndex: 100, height: "2px", background: "linear-gradient(to right,#4a9eff,#7b4fff)", width: `${progress * 100}%`, transition: "width 0.1s linear" }} />
+
+      <div style={{ position: "relative", zIndex: 1, color: "#f0f0f0", minHeight: "100dvh", overflowX: "hidden", maxWidth: "100vw", boxSizing: "border-box" }}>
+        <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 clamp(20px,5vw,60px)" }}>
+
+          {/* ── HERO ──────────────────────────────────────────────────── */}
+          <div ref={heroRef} style={{ paddingTop: "clamp(56px,10dvh,96px)", opacity: heroIn ? 1 : 0, transform: heroIn ? "translateY(0)" : "translateY(28px)", transition: "opacity 0.9s ease, transform 0.9s ease" }}>
+            <p style={{ fontSize: "9px", letterSpacing: "0.6em", textTransform: "uppercase", color: "rgba(100,165,255,0.55)", marginBottom: "28px" }}>Portfolio · 2025</p>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "clamp(20px,4vw,40px)", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "24px" }}>
+              <div style={{ flex: "1 1 300px", minWidth: 0 }}>
+                <h1 className="font-freight" style={{ fontSize: "clamp(2.4rem,6vw,4.6rem)", fontWeight: 200, color: "#f0f0f0", lineHeight: 0.95, letterSpacing: "-0.025em", marginBottom: "16px" }}>
+                  Mohammad Shafee ur rahaman
+                </h1>
+                <p style={{ fontSize: "clamp(12px,1.8vw,14px)", color: "rgba(100,165,255,0.75)", fontWeight: 500, letterSpacing: "0.04em", marginBottom: "18px" }}>
+                  AI Engineer · Data Scientist · Gen AI Specialist
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", fontSize: "12px", color: "rgba(255,255,255,0.35)", alignItems: "center" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: "5px" }}><IconPin /> Hyderabad, India</span>
+                  <a href="mailto:md.shafee05s@gmail.com" style={{ display: "flex", alignItems: "center", gap: "5px", color: "rgba(130,190,255,0.7)", textDecoration: "none" }}><IconMail /> md.shafee05s@gmail.com</a>
+                  <span>+91-6305492767</span>
+                </div>
+              </div>
+              <div style={{ flex: "0 0 auto", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", padding: "16px 20px", minWidth: "170px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                  <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 8px #4ade80", display: "inline-block", flexShrink: 0 }} />
+                  <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.65)" }}>Available for work</span>
+                </div>
+                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.28)", lineHeight: 1.6, margin: 0 }}>Open to AI · ML · Data Science roles globally.</p>
+              </div>
+            </div>
+
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.42)", lineHeight: 1.95, maxWidth: "680px", marginBottom: "28px" }}>
+              Computer Science graduate specialising in Data Science with hands-on experience in Generative AI, LLM automation pipelines, and backend integration. Skilled in Python, PyTorch, Hugging Face, and LangChain — passionate about building scalable AI systems that drive measurable outcomes.
+            </p>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+              {[
+                { href: "https://github.com/shafee05", icon: <IconGithub />, label: "GitHub" },
+                { href: "https://www.linkedin.com/in/mohammad-shafee05", icon: <IconLinkedIn />, label: "LinkedIn" },
+              ].map(({ href, icon, label }) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "7px", fontSize: "11px", letterSpacing: "0.05em", padding: "10px 18px", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.55)", textDecoration: "none", transition: "all 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.28)"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.09)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "rgba(255,255,255,0.55)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>
+                  {icon} {label}
+                </a>
+              ))}
+              <button onClick={copyEmail} style={{ display: "inline-flex", alignItems: "center", gap: "7px", fontSize: "11px", letterSpacing: "0.05em", padding: "10px 18px", borderRadius: "99px", border: `1px solid ${copied ? "rgba(100,200,100,0.35)" : "rgba(255,255,255,0.12)"}`, background: copied ? "rgba(100,200,100,0.08)" : "rgba(255,255,255,0.04)", color: copied ? "#80e080" : "rgba(255,255,255,0.55)", cursor: "pointer", transition: "all 0.25s" }}>
+                {copied ? <span style={{ color: "#4ade80" }}>✓</span> : <IconCopy />} {copied ? "Copied!" : "Copy Email"}
+              </button>
+            </div>
+          </div>
+
+          <Rule />
+
+          {/* ── EXPERIENCE ────────────────────────────────────────────── */}
+          <div ref={expRef} style={{ opacity: expIn ? 1 : 0, transform: expIn ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease, transform 0.6s ease" }}>
+            <SecLabel text="Experience" />
+            {EXPERIENCE.map((exp, i) => (
+              <div key={i} style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", padding: "clamp(20px,4vw,30px)", marginBottom: "12px", transition: "border-color 0.3s, box-shadow 0.3s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(100,165,255,0.25)"; e.currentTarget.style.boxShadow = "0 0 28px rgba(100,165,255,0.06)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }}>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: "10px", marginBottom: "18px" }}>
+                  <div>
+                    <h3 style={{ fontSize: "clamp(14px,2vw,17px)", fontWeight: 600, color: "#e8eaf8", marginBottom: "5px" }}>{exp.role}</h3>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                      <span style={{ fontSize: "13px", color: "rgba(100,165,255,0.75)", fontWeight: 500 }}>{exp.company}</span>
+                      <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.28)" }}>{exp.location}</span>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", padding: "4px 12px", borderRadius: "99px", whiteSpace: "nowrap", flexShrink: 0 }}>{exp.period}</span>
+                </div>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {exp.bullets.map((b, j) => (
+                    <li key={j} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                      <span style={{ color: "rgba(100,165,255,0.45)", marginTop: "5px", fontSize: "8px", flexShrink: 0 }}>▸</span>
+                      <span style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.50)", lineHeight: 1.85 }}>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <Rule />
+
+          {/* ── PROJECTS ──────────────────────────────────────────────── */}
+          <div ref={projRef} style={{ opacity: projIn ? 1 : 0, transform: projIn ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease, transform 0.6s ease" }}>
+            <SecLabel text="Projects" />
+            {/* Filter tabs */}
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "24px" }}>
+              {["All", "ML", "Web"].map(cat => (
+                <button key={cat} onClick={() => setFilter(cat)} style={{
+                  padding: "6px 16px", borderRadius: "99px", fontSize: "10px", fontWeight: 600,
+                  letterSpacing: "0.07em", cursor: "pointer", border: "1px solid",
+                  background: filter === cat ? "rgba(100,165,255,0.15)" : "rgba(255,255,255,0.03)",
+                  borderColor: filter === cat ? "rgba(100,165,255,0.50)" : "rgba(255,255,255,0.10)",
+                  color: filter === cat ? "#a8ccff" : "rgba(255,255,255,0.40)",
+                  transition: "all 0.2s",
+                }}>{cat}</button>
+              ))}
+            </div>
+            {/* Cards — ProjectCard owns its own useReveal, no hooks in map ✓ */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {filtered.map(proj => <ProjectCard key={proj.title} proj={proj} />)}
+            </div>
+          </div>
+
+          <Rule />
+
+          {/* ── SKILLS ────────────────────────────────────────────────── */}
+          <div ref={skillsRef} style={{ opacity: skillsIn ? 1 : 0, transform: skillsIn ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease, transform 0.6s ease" }}>
+            <SecLabel text="Core Skills" />
+            {/* SkillGroup owns its own useReveal ✓ */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(240px,100%), 1fr))", gap: "10px" }}>
+              {SKILLS.map(s => <SkillGroup key={s.group} group={s.group} items={s.items} />)}
+            </div>
+          </div>
+
+          <Rule />
+
+          {/* ── EDUCATION ─────────────────────────────────────────────── */}
+          <div ref={eduRef} style={{ opacity: eduIn ? 1 : 0, transform: eduIn ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease, transform 0.6s ease" }}>
+            <SecLabel text="Education" />
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {EDUCATION.map(({ degree, institution, period, detail }, i) => (
+                <div key={i} style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "10px", background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "14px", padding: "20px 24px", transition: "border-color 0.3s" }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(100,165,255,0.22)"}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}>
+                  <div style={{ minWidth: 0 }}>
+                    <h3 style={{ fontSize: "clamp(13px,2vw,15px)", fontWeight: 600, color: "#e4e8f8", marginBottom: "4px" }}>{degree}</h3>
+                    <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.36)" }}>{institution}</p>
+                  </div>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.28)", marginBottom: "4px" }}>{period}</p>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "rgba(100,165,255,0.75)" }}>{detail}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Rule />
+
+          {/* ── CERTIFICATIONS ────────────────────────────────────────── */}
+          <div ref={certRef} style={{ opacity: certIn ? 1 : 0, transform: certIn ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease, transform 0.6s ease" }}>
+            <SecLabel text="Certifications" />
+            {/* CertCard owns its own useReveal ✓ */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(230px,100%), 1fr))", gap: "10px" }}>
+              {CERTS.map(c => <CertCard key={c.name} name={c.name} issuer={c.issuer} />)}
+            </div>
+          </div>
+
+          <Rule />
+
+          {/* ── CONTACT ───────────────────────────────────────────────── */}
+          <div ref={ctaRef} style={{ textAlign: "center", paddingBottom: "80px", opacity: ctaIn ? 1 : 0, transform: ctaIn ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease, transform 0.6s ease" }}>
+            <p style={{ fontSize: "9px", letterSpacing: "0.6em", textTransform: "uppercase", color: "rgba(100,165,255,0.55)", marginBottom: "16px" }}>Open to Opportunities</p>
+            <h2 className="font-freight" style={{ fontSize: "clamp(1.8rem,4vw,3rem)", fontWeight: 300, color: "#f0f0f0", marginBottom: "10px" }}>Let's build something together</h2>
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.35)", lineHeight: 1.85, maxWidth: "440px", margin: "0 auto 36px" }}>
+              Available for full-time roles, contract projects, and collaborations in AI, Data Science, and Generative AI.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px" }}>
+              <a href="mailto:md.shafee05s@gmail.com" style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: "rgba(255,255,255,0.92)", color: "#08080f", borderRadius: "99px", padding: "13px 28px", fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", textDecoration: "none", transition: "transform 0.2s, box-shadow 0.2s" }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(255,255,255,0.18)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+                <IconMail /> Email Me
+              </a>
+              <button onClick={copyEmail} style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: copied ? "rgba(100,200,100,0.08)" : "rgba(255,255,255,0.04)", border: `1px solid ${copied ? "rgba(100,200,100,0.35)" : "rgba(255,255,255,0.15)"}`, borderRadius: "99px", padding: "13px 26px", fontSize: "11px", letterSpacing: "0.06em", color: copied ? "#80e080" : "#dde0f5", cursor: "pointer", transition: "all 0.3s" }}>
+                {copied ? <span style={{ color: "#4ade80" }}>✓</span> : <IconCopy />} {copied ? "Copied!" : "Copy Email"}
+              </button>
+              {[
+                { href: "https://www.linkedin.com/in/mohammad-shafee05", icon: <IconLinkedIn />, label: "LinkedIn" },
+                { href: "https://github.com/shafee05", icon: <IconGithub />, label: "GitHub" },
+              ].map(({ href, icon, label }) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.15)", color: "#dde0f5", borderRadius: "99px", padding: "13px 26px", fontSize: "11px", letterSpacing: "0.06em", textDecoration: "none", transition: "background 0.2s, transform 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.09)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.transform = "translateY(0)"; }}>
+                  {icon} {label}
+                </a>
+              ))}
+            </div>
+          </div>
+
         </div>
-      </section>
-
-      {/* Scroll to Top Button */}
-      {showScrollTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-8 right-8 bg-white text-black p-3 rounded-full 
-                     shadow-lg hover:bg-gray-200 transition-colors z-50"
-          aria-label="Scroll to top"
-        >
-          ^
-        </button>
-      )}
-    </main>
+      </div>
+    </>
   );
 }

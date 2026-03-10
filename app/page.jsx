@@ -1,822 +1,1037 @@
 "use client";
 
-import { useState } from 'react';
-import dynamic from 'next/dynamic';
-import Hero from '@/components/sections/hero';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
 
-const SkillsMarquee = dynamic(() => import("@/components/sections/SkillsMarquee"), { ssr: false });
-const ContentSection = dynamic(() => import("@/components/sections/content-section"), { ssr: false });
+const GalaxyOrb          = dynamic(() => import("@/components/GalaxyOrb"),          { ssr: false, loading: () => null });
+const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"),  { ssr: false, loading: () => null });
+const SkillsMarquee      = dynamic(() => import("@/components/sections/SkillsMarquee"),       { ssr: false, loading: () => null });
 
-export default function Home() {
-  const [showVideo, setShowVideo] = useState(false);
+/* ══════════════════════════════════════════════════════════════════
+   INTRO ANIMATION — always plays on every page load, no sessionStorage
+══════════════════════════════════════════════════════════════════ */
+function IntroScreen() {
+  // phase: "cover" → "show" → "hold" → "fade" → "gone"
+  const [phase, setPhase] = useState("cover");
+
+  useEffect(() => {
+    // Small initial delay so SSR flash doesn't appear
+    const t0 = setTimeout(() => setPhase("show"),  80);
+    const t1 = setTimeout(() => setPhase("hold"),  900);
+    const t2 = setTimeout(() => setPhase("fade"),  2200);
+    const t3 = setTimeout(() => setPhase("gone"),  3400);
+    return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, []);
+
+  if (phase === "gone") return null;
+
+  const overlayVisible = phase !== "fade";
 
   return (
     <>
-      <Hero
-        title="Mohammad Shafee"
-        subtitle="Unleashing Creativity • Pioneering AI • Data Science Engineer • Life Coach"
-        showButton={false}
-      />
+      <style>{`
+        @keyframes introSpin {
+          from { transform: translate(-50%,-50%) rotate(0deg); }
+          to   { transform: translate(-50%,-50%) rotate(360deg); }
+        }
+        @keyframes introPulse {
+          0%,100% { opacity: 0.45; transform: scale(1); }
+          50%      { opacity: 0.90; transform: scale(1.04); }
+        }
+        @keyframes introLogoIn {
+          from { opacity: 0; transform: translate(-50%,-50%) scale(0.88); }
+          to   { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+        }
+        @keyframes introLineGrow {
+          from { width: 0; }
+          to   { width: 180px; }
+        }
+        @keyframes introTagIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
 
-      {/* === Section Navigation Bar === */}
-      <nav
-        aria-label="Section navigation"
-        className="sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-white/10"
-      >
-        <div className="mx-auto max-w-7xl px-4">
-          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 py-3 font-medium text-sm md:text-base">
-            {[
-              { id: "odyssey", label: "Odyssey", info: "Overview of my AI & Data Science journey" },
-              { id: "book", label: "Book", info: "Discover my published book" },   // ✅ ADDED HERE
-              { id: "passion", label: "AI & Data Science", info: "My interests, goals, and passion for AI" },
-              { id: "skills", label: "Skills", info: "Technical and soft skills I bring to the table" },
-              { id: "experience", label: "Experience", info: "Internships and professional journey so far" },
-              { id: "coaching", label: "Life Coaching", info: "My guidance and personal growth support" },
-              { id: "projects", label: "Projects", info: "Featured projects and case studies" },
-              { id: "achievements", label: "Achievements", info: "Key milestones and competitions" },
-              { id: "education", label: "Education", info: "Academic background and certifications" },
-              { id: "contact", label: "Contact", info: "Ways to connect and collaborate with me" },
-            ].map((link) => (
-              <li key={link.id} className="relative group">
-                <a
-                  href={`#${link.id}`}
-                  className="
-                    relative inline-flex items-center px-2 py-1 rounded-md
-                    text-gray-300 transition-all duration-300 ease-out
-                    hover:text-white hover:-translate-y-0.5
-                    focus-visible:outline-none focus-visible:ring-2
-                    focus-visible:ring-blue-500/50 focus-visible:ring-offset-2
-                    focus-visible:ring-offset-gray-900
-                    before:absolute before:inset-0 before:rounded-md
-                    before:bg-white/5 before:opacity-0
-                    before:transition-opacity before:duration-300
-                    hover:before:opacity-100
-                    after:absolute after:left-2 after:-bottom-0.5
-                    after:h-0.5 after:w-0 after:bg-blue-500
-                    after:rounded-full after:transition-all after:duration-300
-                    hover:after:w-[calc(100%-1rem)]
-                  "
-                >
-                  {link.label}
-                </a>
+      {/* Full-screen overlay */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 9998,
+        background: "rgba(2,4,14,0.98)",
+        opacity: phase === "fade" ? 0 : 1,
+        transition: phase === "fade" ? "opacity 1.1s cubic-bezier(0.4,0,0.2,1)" : "none",
+        pointerEvents: phase === "fade" ? "none" : "auto",
+      }} />
 
-                {/* Tooltip */}
-                <div
-                  className="
-                    absolute top-full left-1/2 -translate-x-1/2 mt-2
-                    w-max max-w-xs opacity-0 scale-95
-                    group-hover:opacity-100 group-hover:scale-100
-                    transition duration-300 ease-out
-                    bg-gray-800 text-gray-200
-                    text-xs md:text-sm px-3 py-2
-                    rounded-lg shadow-lg pointer-events-none
-                  "
-                >
-                  {link.info}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
-
-      {/* Video Modal */}
-      {showVideo && (
-        <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowVideo(false)}
-        >
-          <div className="relative w-full max-w-4xl aspect-video">
-            <iframe
-              width="100%"
-              height="100%"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&modestbranding=1&rel=0"
-              title="Portfolio Video"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="bg-black"
-            ></iframe>
-            <button
-              className="absolute top-4 right-4 text-white text-2xl w-10 h-10 flex items-center justify-center bg-black/50 rounded-full"
-              onClick={() => setShowVideo(false)}
-            >
-              ×
-            </button>
-          </div>
+      {/* Spinning dashed ring */}
+      {(phase === "hold" || phase === "fade") && (
+        <div style={{
+          position: "fixed", top: "50%", left: "50%",
+          zIndex: 9999, pointerEvents: "none",
+          animation: "introSpin 12s linear infinite",
+        }}>
+          <svg width="300" height="300" viewBox="-150 -150 300 300">
+            <circle cx="0" cy="0" r="130" fill="none"
+              stroke="rgba(100,160,255,0.22)" strokeWidth="0.8"
+              strokeDasharray="5 14" />
+            <circle cx="0" cy="0" r="108" fill="none"
+              stroke="rgba(255,255,255,0.06)" strokeWidth="0.6" />
+          </svg>
         </div>
       )}
 
-      {/* Portfolio Section with Fade-In Transition */}
-      <div id="odyssey">
-        <ContentSection
-          title="My AI & Data Science Odyssey<br/>Where Innovation Meets Passion"
-          paragraphs={[
-            "Step into the world of Mohammad Shafee ur Rahaman—a visionary Data Science Engineering student igniting a revolution in emotional intelligence through AI. With expertise in Generative AI, NLP, and emotionally resonant systems, I'm crafting a future where technology feels human. Curious? Dive deeper into the projects that define my journey.",
-            "This portfolio is more than a showcase—it's an invitation to explore the mind of a creator who blends data with dreams. Each project, skill, and achievement is a stepping stone to something extraordinary. Are you ready to be inspired?"
-          ]}
-          bgColor="bg-gradient-to-b from-gray-900 to-blue-950"
-          textColor="text-white"
-        />
-      </div>
-
-      {/* Book Section */}
-      <section id="book" className="py-24 bg-gradient-to-r from-gray-900 to-blue-950 text-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-            <div className="relative h-96">
-              <Image
-                src="/images/arcana-cover.jpg" // Make sure this file exists in /public/images
-                alt="The Arcana of Ascent Book Cover"
-                fill
-                className="object-cover rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-              />
-            </div>
-            <div>
-              <h2 className="font-freight text-4xl md:text-5xl mb-6 font-bold text-white">
-  The Arcana of Ascent
-</h2>
-
-<p className="text-lg text-silver-500 mb-8 leading-relaxed">
-  <strong>The Arcana of Ascent</strong> is a study in quiet power. It confronts the inner
-  territories most people bypass—where silence sharpens resolve, and endurance is forged
-  without witnesses. This book does not seek to inspire through optimism; it challenges
-  through recognition—recognition of the self stripped of illusion, distraction, and
-  performance.
-</p>
-
-<p className="text-lg text-silver-500 mb-8 leading-relaxed">
-  Built around the principle that transformation begins long before it is visible, the work
-  moves deliberately through themes of restraint, inner tension, and disciplined
-  self-awareness. It creates a psychological environment rather than a storyline—one that
-  mirrors the reader’s own unspoken struggles.
-</p>
-
-<p className="text-lg text-silver-500 leading-relaxed">
-  As both author and life coach, the voice behind <strong>The Arcana of Ascent</strong> remains
-  measured, grounded, and intentional. There is no persuasion here—only presence. The book
-  stands as an invitation to those prepared to confront themselves honestly and rise without
-  announcement.
-</p>
-
-
-              <div className="flex space-x-4">
-                <a
-                  href="https://amzn.to/4pccTFI"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block bg-royal-blue text-white py-2 px-6 rounded-lg font-medium shadow-lg hover:bg-royal-blue-dark transition-all duration-300"
-                >
-
-                  Buy eBook
-                </a>
-                <a
-                  href="https://www.amazon.com/dp/B0G53KB8SH"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block bg-royal-blue text-white py-2 px-6 rounded-lg font-medium shadow-lg hover:bg-royal-blue-dark transition-all duration-300"
-                >
-                  Buy Physical Book
-                </a>
-              </div>
-            </div>
-          </div>
+      {/* 8 orbiting dots */}
+      {(phase === "hold" || phase === "fade") && (
+        <div style={{ position: "fixed", top: "50%", left: "50%", zIndex: 9999, pointerEvents: "none" }}>
+          {[...Array(8)].map((_, i) => {
+            const angle = (i / 8) * 360;
+            const rad = (angle * Math.PI) / 180;
+            const r = 118 + (i % 3) * 14;
+            const x = Math.cos(rad) * r;
+            const y = Math.sin(rad) * r;
+            return (
+              <div key={i} style={{
+                position: "absolute",
+                width: "4px", height: "4px", borderRadius: "50%",
+                background: "rgba(100,165,255,0.75)",
+                boxShadow: "0 0 8px rgba(100,165,255,0.8)",
+                top: "50%", left: "50%",
+                marginTop: "-2px", marginLeft: "-2px",
+                transform: `translate(${x}px, ${y}px)`,
+                opacity: phase === "hold" ? 0.75 : 0,
+                transition: `opacity 0.4s ease ${i * 60}ms`,
+              }} />
+            );
+          })}
         </div>
-        <style jsx>{`
-          .text-silver-500 {
-            color: #A0A0A0;
-          }
-          .bg-royal-blue {
-            background-color: #4169E1;
-          }
-          .bg-royal-blue-dark {
-            background-color: #1E40AF;
-          }
-        `}</style>
-      </section>
+      )}
 
-      {/* AI & Data Science Passion Section with Image */}
-      <section id="passion" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="font-freight text-4xl md:text-5xl mb-6 font-bold text-white">
-                My Passion for AI & Data Science
-              </h2>
-              <p className="text-lg text-silver-500 mb-8 leading-relaxed">
-                Driven by a profound interest in artificial intelligence and data science, I specialize in creating innovative solutions that bridge human emotions with cutting-edge technology. From generative AI models to advanced NLP systems, my work focuses on making machines more intuitive and empathetic.
-              </p>
-              <p className="text-lg text-silver-500 leading-relaxed">
-                Explore how I transform complex data into actionable insights and build AI systems that resonate on a human level.
-              </p>
-            </div>
-            <div className="relative h-96">
-              <Image
-                src="/images/AI+DS.png"
-                alt="AI and Data Science Innovation"
-                fill
-                className="object-cover rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-              />
-            </div>
+      {/* Logo centrepiece */}
+      {(phase !== "cover") && (
+        <div style={{
+          position: "fixed", top: "50%", left: "50%",
+          zIndex: 10000, pointerEvents: "none",
+          animation: "introLogoIn 0.65s cubic-bezier(0.34,1.4,0.64,1) forwards",
+          display: "flex", flexDirection: "column", alignItems: "center",
+          transform: "translate(-50%,-50%)",
+          opacity: phase === "fade" ? 0 : 1,
+          transition: phase === "fade" ? "opacity 0.9s ease 0.1s" : "none",
+        }}>
+          {/* Logo image */}
+          <div style={{ position: "relative", width: "200px", height: "56px", marginBottom: "20px" }}>
+            <Image src="/svg/logo.svg" alt="Shafee" fill className="object-contain" priority />
           </div>
-        </div>
-        <style jsx>{`
-          .text-silver-500 {
-            color: #A0A0A0;
-          }
-        `}</style>
-      </section>
 
-      {/* Skills Section with Hover Transitions */}
-      <section id="skills" className="py-24 bg-gradient-to-r from-gray-900 to-blue-950 text-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-12 text-center font-bold animate-fadeInUp text-white">
-              My Arsenal of Expertise
-            </h2>
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="space-y-6 transition-all duration-300 hover:shadow-royal-blue">
-                <h3 className="text-2xl font-semibold text-royal-blue">Technical Mastery</h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start transition-transform duration-300 hover:translate-x-2">
-                    <div className="w-2 h-2 bg-silver-300 rounded-full mt-2 mr-3"></div>
-                    <div>
-                      <h4 className="font-medium text-white">Generative AI & NLP</h4>
-                      <p className="text-silver-500">Expert in creating AI systems that understand and generate human-like language and emotions.</p>
-                    </div>
-                  </li>
-                  <li className="flex items-start transition-transform duration-300 hover:translate-x-2">
-                    <div className="w-2 h-2 bg-silver-300 rounded-full mt-2 mr-3"></div>
-                    <div>
-                      <h4 className="font-medium text-white">Machine Learning Models</h4>
-                      <p className="text-silver-500">Proficient in Decision Trees, LightGBM, YOLO, and real-time inference for predictive and recognition tasks.</p>
-                    </div>
-                  </li>
-                  <li className="flex items-start transition-transform duration-300 hover:translate-x-2">
-                    <div className="w-2 h-2 bg-silver-300 rounded-full mt-2 mr-3"></div>
-                    <div>
-                      <h4 className="font-medium text-white">Data Analysis & Visualization</h4>
-                      <p className="text-silver-500">Skilled in Pandas, NumPy, SQL, Tableau, and Power BI for insightful data-driven decisions.</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+          {/* Animated line */}
+          <div style={{
+            height: "1px",
+            background: "linear-gradient(to right, transparent, rgba(100,165,255,0.75), transparent)",
+            marginBottom: "12px",
+            animation: phase === "hold" ? "introLineGrow 0.7s ease forwards" : "none",
+            width: phase === "hold" || phase === "fade" ? "180px" : "0",
+            transition: "width 0.7s ease",
+          }} />
 
-              {/* Soft Skills & Life Coaching */}
-              <div className="space-y-6 transition-all duration-300 hover:shadow-royal-blue">
-                <h3 className="text-2xl font-semibold text-royal-blue">Soft Skills & Coaching</h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start transition-transform duration-300 hover:translate-x-2">
-                    <div className="w-2 h-2 bg-silver-300 rounded-full mt-2 mr-3"></div>
-                    <div>
-                      <h4 className="font-medium text-white">Life Coaching & Counseling</h4>
-                      <p className="text-silver-500">Certified in life coaching, providing guidance in personal growth, life skills, career development, and emotional support (non-clinical).</p>
-                    </div>
-                  </li>
-                  <li className="flex items-start transition-transform duration-300 hover:translate-x-2">
-                    <div className="w-2 h-2 bg-silver-300 rounded-full mt-2 mr-3"></div>
-                    <div>
-                      <h4 className="font-medium text-white">Communication & Collaboration</h4>
-                      <p className="text-silver-500">Strong in critical thinking, problem-solving, and team collaboration for effective project outcomes.</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <style jsx>{`
-          .shadow-royal-blue {
-            box-shadow: 0 0 20px rgba(65, 105, 225, 0.3);
-          }
-          .text-royal-blue {
-            color: #4169E1;
-          }
-          .text-silver-300 {
-            color: #C0C0C0;
-          }
-          .text-silver-500 {
-            color: #A0A0A0;
-          }
-          .bg-silver-300 {
-            background-color: #C0C0C0;
-          }
-        `}</style>
-      </section>
-
-      {/* Work Experience / Internship Section */}
-      <section id="experience" className="py-24 bg-gradient-to-r from-gray-900 to-blue-950 text-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-12 text-center font-bold animate-fadeInUp text-silver-300">
-              Professional Experience
-            </h2>
-            <div className="grid md:grid-cols-1 gap-12">
-              <div className="bg-blue-950 p-8 rounded-lg shadow-silver transition-all duration-300 hover:shadow-gold">
-                <h3 className="text-2xl font-semibold text-gold-300 mb-2">Python Engineer – Gen AI Intern</h3>
-                <p className="text-lg text-silver-500 mb-4">ADVI Group of Companies · Feb 2025 – Aug 2025 · Hyderabad</p>
-              </div>
-            </div>
-            <div className="flex justify-center mt-12">
-              <Link
-                href="/portfolio"
-                className="flex items-center text-white hover:text-gold-300 transition-colors duration-300"
-              >
-                <span className="mr-2 text-lg font-medium">View Full Portfolio</span>
-                <div className="relative w-5 h-5">
-                  <Image
-                    src="/svg/arrow-white-right.svg"
-                    alt="Arrow"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </Link>
-            </div>
-          </div>
-        </div>
-        <style jsx>{`
-          .shadow-silver {
-            box-shadow: 0 0 20px rgba(192, 192, 192, 0.3);
-          }
-          .shadow-gold {
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-          }
-          .text-gold-300 {
-            color: #4169E1;
-          }
-          .text-silver-300 {
-            color: #C0C0C0;
-          }
-          .text-silver-500 {
-            color: #A0A0A0;
-          }
-        `}</style>
-      </section>
-
-     {/* ===== LIFE COACHING SECTION (enhanced with coaching depth & polish) ===== */}
-<section id="coaching" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white relative overflow-hidden">
-  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(65,105,225,0.08),_transparent_70%)]"></div>
-  
-  <div className="container mx-auto px-6 relative z-10">
-    <div className="max-w-6xl mx-auto">
-
-      {/* Subtle highlight badge */}
-      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white/5 text-white text-sm px-3 py-1 rounded-full shadow-md border border-white/10">
-        Featured • Certified Coaching
-      </div>
-
-      {/* Title */}
-      <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-6 text-center font-bold text-white">
-        Life Coaching &amp; Personal Growth Guidance
-      </h2>
-
-      {/* Intro paragraph — now infused with your coaching philosophy */}
-      <p className="text-lg text-center mb-12 max-w-3xl mx-auto text-silver-500 leading-relaxed">
-        Every person carries a <strong>Definite Major Purpose</strong>—a legacy waiting to unfold.  
-        Through compassionate inquiry and structured guidance, I help you uncover clarity, face limiting fears, and align your daily actions with your deepest values.  
-        This isn't about fixing you. It's about <em>awakening the wisdom already within</em>.
-      </p>
-
-      {/* Coaching Cards — refined copy & subtle enhancements */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div className="bg-blue-950/70 backdrop-blur-sm p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-          <div className="mb-3">
-            <i data-feather="target" className="text-royal-blue w-6 h-6"></i>
-          </div>
-          <h3 className="text-xl font-semibold text-royal-blue mb-3">Life Skills & Clarity</h3>
-          <p className="text-silver-500 text-sm leading-relaxed">
-            Build resilience, emotional intelligence, and daily habits that support a purpose-driven life—rooted in your values, not external noise.
+          {/* Tagline */}
+          <p style={{
+            fontSize: "10px", letterSpacing: "0.5em", textTransform: "uppercase",
+            color: "rgba(255,255,255,0.35)",
+            opacity: phase === "hold" || phase === "fade" ? 1 : 0,
+            transform: phase === "hold" || phase === "fade" ? "translateY(0)" : "translateY(8px)",
+            transition: "opacity 0.5s ease 0.25s, transform 0.5s ease 0.25s",
+          }}>
+            Portfolio · 2025
           </p>
         </div>
+      )}
+    </>
+  );
+}
 
-        <div className="bg-blue-950/70 backdrop-blur-sm p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-          <div className="mb-3">
-            <i data-feather="briefcase" className="text-royal-blue w-6 h-6"></i>
+/* ── Scroll reveal ────────────────────────────────────────────────── */
+function useReveal(delay = 0) {
+  const ref = useRef(null);
+  const [v, setV] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    let tm;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { tm = setTimeout(() => setV(true), delay); obs.disconnect(); }
+    }, { threshold: 0.07, rootMargin: "0px 0px -30px 0px" });
+    obs.observe(el);
+    return () => { obs.disconnect(); clearTimeout(tm); };
+  }, [delay]);
+  return { ref, visible: v };
+}
+
+/* ── Button styles ────────────────────────────────────────────────── */
+const btnSolid = {
+  display: "inline-block", background: "rgba(255,255,255,0.92)", color: "#08080f",
+  borderRadius: "99px", padding: "13px 32px", fontSize: "11px", fontWeight: 700,
+  letterSpacing: "0.09em", textTransform: "uppercase", textDecoration: "none",
+  transition: "transform 0.2s,background 0.2s,box-shadow 0.2s", boxSizing: "border-box",
+};
+const btnOutline = {
+  display: "inline-block", background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.18)", color: "#dde0f5",
+  borderRadius: "99px", padding: "13px 28px", fontSize: "11px", letterSpacing: "0.06em",
+  textDecoration: "none", transition: "transform 0.2s,background 0.2s,border-color 0.2s",
+  boxSizing: "border-box",
+};
+
+/* ── Section wrapper ──────────────────────────────────────────────── */
+function Sec({ id, tinted, children, style: extraStyle }) {
+  return (
+    <section id={id} style={{
+      padding: "88px clamp(20px,5vw,64px)",
+      borderTop: "1px solid rgba(255,255,255,0.055)",
+      background: tinted ? "rgba(255,255,255,0.018)" : "transparent",
+      width: "100%", boxSizing: "border-box",
+      ...extraStyle,
+    }}>
+      {children}
+    </section>
+  );
+}
+
+/* ── Section heading ──────────────────────────────────────────────── */
+function SH({ label, title, subtitle }) {
+  const { ref, visible } = useReveal(0);
+  return (
+    <div ref={ref} style={{ textAlign: "center", marginBottom: "52px",
+      opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(18px)",
+      transition: "opacity 0.65s ease,transform 0.65s ease" }}>
+      {label && <p style={{ fontSize: "9px", letterSpacing: "0.55em", textTransform: "uppercase", color: "rgba(110,170,255,0.65)", marginBottom: "12px" }}>{label}</p>}
+      <h2 className="font-freight" style={{ fontSize: "clamp(2rem,4.5vw,3.4rem)", fontWeight: 300, color: "#f0f0f0", lineHeight: 1.1, marginBottom: subtitle ? "14px" : 0 }}>{title}</h2>
+      {subtitle && <p style={{ fontSize: "clamp(13px,2vw,15px)", color: "rgba(255,255,255,0.36)", maxWidth: "580px", margin: "0 auto", lineHeight: 1.85 }}>{subtitle}</p>}
+    </div>
+  );
+}
+
+/* ── Project card ─────────────────────────────────────────────────── */
+function ProjectCard({ image, bgGrad, title, desc, tags, href, external, badge, delay, isGame }) {
+  const { ref, visible } = useReveal(delay);
+  return (
+    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(24px)", transition: "opacity 0.55s ease,transform 0.55s ease" }}>
+      <div style={{
+        position: "relative", borderRadius: "14px", overflow: "hidden", height: "260px",
+        border: "1px solid rgba(255,255,255,0.07)",
+        transition: "border-color 0.3s,box-shadow 0.3s",
+        cursor: isGame ? "pointer" : "default",
+      }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(0,200,255,0.38)"; e.currentTarget.style.boxShadow = "0 0 28px rgba(0,180,255,0.10)"; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.boxShadow = "none"; }}
+        onClick={isGame ? () => window.open("https://nrnr-game.vercel.app/", "_blank") : undefined}
+      >
+        {image && <div style={{ position: "absolute", inset: 0 }}><Image src={image} alt={title} fill style={{ objectFit: "cover", opacity: 0.40 }}/></div>}
+        {bgGrad && <div style={{ position: "absolute", inset: 0, background: bgGrad }}/>}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top,rgba(3,5,18,0.97) 28%,rgba(3,5,18,0.42) 68%,transparent)" }}/>
+        {badge && (
+          <div style={{ position: "absolute", top: "14px", left: "14px", zIndex: 2,
+            background: isGame ? "linear-gradient(135deg,#001a33,#003355)" : "rgba(255,255,255,0.08)",
+            color: isGame ? "#66ddff" : "rgba(200,220,255,0.7)", fontSize: "10px", fontWeight: 700,
+            padding: "4px 10px", borderRadius: "99px",
+            border: isGame ? "1px solid rgba(0,180,255,0.35)" : "1px solid rgba(255,255,255,0.14)",
+            letterSpacing: "0.07em" }}>
+            {badge}
           </div>
-          <h3 className="text-xl font-semibold text-royal-blue mb-3">Career & Purpose Alignment</h3>
-          <p className="text-silver-500 text-sm leading-relaxed">
-            Move beyond job titles. Discover work that reflects your passions, strengths, and Definite Major Purpose—so your career becomes your contribution.
-          </p>
-        </div>
-
-        <div className="bg-blue-950/70 backdrop-blur-sm p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-          <div className="mb-3">
-            <i data-feather="heart" className="text-royal-blue w-6 h-6"></i>
+        )}
+        {isGame && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 3 }}>
+            <div style={{ width: "54px", height: "54px", borderRadius: "50%",
+              background: "rgba(0,180,255,0.12)", border: "1.5px solid rgba(0,200,255,0.45)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "transform 0.2s,background 0.2s", backdropFilter: "blur(4px)" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,200,255,0.22)"; e.currentTarget.style.transform = "scale(1.08)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(0,180,255,0.12)"; e.currentTarget.style.transform = "scale(1)"; }}>
+              <span style={{ fontSize: "20px", marginLeft: "3px" }}>▶</span>
+            </div>
           </div>
-          <h3 className="text-xl font-semibold text-royal-blue mb-3">Emotional Balance</h3>
-          <p className="text-silver-500 text-sm leading-relaxed">
-            Navigate stress, self-doubt, and inner conflict with tools to regulate emotions, silence your inner critic, and reclaim your calm.
-          </p>
+        )}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "18px 20px", zIndex: 2 }}>
+          {tags && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginBottom: "8px" }}>
+              {tags.map(t => <span key={t} style={{ fontSize: "9px", letterSpacing: "0.1em", padding: "3px 8px", borderRadius: "99px", background: "rgba(255,255,255,0.07)", color: "rgba(180,210,255,0.7)" }}>{t}</span>)}
+            </div>
+          )}
+          <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#f0f0f0", marginBottom: "5px" }}>{title}</h3>
+          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.40)", lineHeight: 1.7, marginBottom: "12px" }}>{desc}</p>
+          {isGame && <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(0,200,255,0.80)" }}>Open Game →</span>}
+          {!isGame && href && (
+            external
+              ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ fontSize: "11px", fontWeight: 600, color: "rgba(140,200,255,0.80)", textDecoration: "none" }}>View →</a>
+              : <Link href={href} style={{ fontSize: "11px", fontWeight: 600, color: "rgba(140,200,255,0.80)", textDecoration: "none" }}>View →</Link>
+          )}
         </div>
-
-        <div className="bg-blue-950/70 backdrop-blur-sm p-6 rounded-xl border border-white/5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-          <div className="mb-3">
-            <i data-feather="trending-up" className="text-royal-blue w-6 h-6"></i>
-          </div>
-          <h3 className="text-xl font-semibold text-royal-blue mb-3">Growth Mindset Coaching</h3>
-          <p className="text-silver-500 text-sm leading-relaxed">
-            Transform fear into fuel. Develop a mindset that embraces setbacks as feedback—and turns vision into consistent, courageous action.
-          </p>
-        </div>
-      </div>
-
-      {/* CTA — more compelling language */}
-      <div className="flex justify-center mt-14">
-        <Link
-          href="/coaching"
-          className="inline-block bg-gradient-to-r from-royal-blue to-blue-600 text-white py-4 px-10 rounded-lg font-freight text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-glow group"
-        >
-          Begin Your Coaching Journey
-          <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">→</span>
-        </Link>
       </div>
     </div>
-  </div>
+  );
+}
 
-  {/* Feather Icons Init (hidden) */}
-  <div ref={() => import('feather-icons').then(f => f.replace())} style={{ display: 'none' }} />
-
-  <style jsx>{`
-    .text-royal-blue {
-      color: #4169E1;
-    }
-    .text-silver-500 {
-      color: #A0A0A0;
-    }
-    .hover\\:shadow-glow:hover {
-      box-shadow: 0 0 25px rgba(65, 105, 225, 0.6);
-    }
-  `}</style>
-</section>
-{/* ===== end life coaching section ===== */}
-
-
-      {/* Projects Section with Background Image Cards */}
-<section id="projects" className="py-24 bg-gradient-to-r from-gray-900 to-blue-950 text-white">
-  <div className="container mx-auto px-6">
-    <div className="max-w-6xl mx-auto">
-      <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-12 text-center font-bold animate-fadeInUp text-white">
-        Featured Projects
-      </h2>
-
-      {/* Cards Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-
-        {/* ImanVerse - Featured Project */}
-        <div
-          className="relative h-80 rounded-xl shadow-2xl overflow-hidden group col-span-2"
-          style={{ 
-            backgroundImage: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('/images/quran-bg.jpg')", 
-            backgroundSize: "cover", 
-            backgroundPosition: "center",
-            border: "2px solid rgba(212, 175, 55, 0.3)"
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 to-emerald-800/30 group-hover:from-green-900/30 group-hover:to-emerald-800/40 transition-all duration-500"></div>
-          
-          {/* Featured Badge */}
-          <div className="absolute top-4 left-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-lg">
-            🌟 Featured Project
-          </div>
-          
-          <div className="relative z-10 p-6 flex flex-col justify-end h-full">
-            <div className="mb-4">
-              <h3 className="text-2xl font-bold text-white mb-2 flex items-center">
-                ImanVerse
-                <span className="ml-2 text-sm bg-white/20 px-2 py-1 rounded-md">Islamic Platform</span>
-              </h3>
-              <p className="text-emerald-100 text-sm mb-3 leading-relaxed">
-                A comprehensive Islamic platform providing Quran access, prayer times, Islamic knowledge, and spiritual resources for the Muslim community.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="bg-white/10 text-emerald-200 text-xs px-2 py-1 rounded">Next.js</span>
-                <span className="bg-white/10 text-emerald-200 text-xs px-2 py-1 rounded">TypeScript</span>
-                <span className="bg-white/10 text-emerald-200 text-xs px-2 py-1 rounded">Tailwind CSS</span>
-                <span className="bg-white/10 text-emerald-200 text-xs px-2 py-1 rounded">Quran API</span>
-              </div>
-            </div>
-            <a
-              href="https://imanverse.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform group-hover:scale-105 shadow-lg hover:shadow-2xl"
-            >
-              <span>Explore ImanVerse</span>
-              <span className="ml-2 group-hover:translate-x-1 transition-transform">🌙</span>
-            </a>
-          </div>
-          
-          {/* Hover Effect */}
-          <div className="absolute inset-0 border-2 border-transparent group-hover:border-emerald-400/50 transition-all duration-300 rounded-xl"></div>
-        </div>
-
-        {/* Project 1 */}
-        <div
-          className="relative h-80 rounded-lg shadow-silver overflow-hidden group"
-          style={{ backgroundImage: "url('/images/cricket.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
-        >
-          <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 transition-all duration-300"></div>
-          <div className="relative z-10 p-6 flex flex-col justify-end h-full">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Cricket Player Performance Prediction
-            </h3>
-            <p className="text-silver-300 text-sm mb-4">
-              ML model predicting player performance using Decision Trees and LightGBM.
-            </p>
-            <a
-              href="https://github.com/shafee05/Cricket-Player-Performance-prediction"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center bg-royal-blue text-white py-2 px-4 rounded-md font-medium transition-colors hover:bg-silver-300 hover:text-black"
-            >
-              View
-              <span className="ml-2">➜</span>
-            </a>
-          </div>
-        </div>
-
-        {/* Project 2 */}
-        <div
-          className="relative h-80 rounded-lg shadow-silver overflow-hidden group"
-          style={{ backgroundImage: "url('/images/gesturetalk.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
-        >
-          <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 transition-all duration-300"></div>
-          <div className="relative z-10 p-6 flex flex-col justify-end h-full">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              GestureTalk Sign Language System
-            </h3>
-            <p className="text-silver-300 text-sm mb-4">
-              Real-time sign language recognition using YOLO, DWpose, and 3D animation.
-            </p>
-            <a
-              href="https://github.com/shafee05/GestureTalk-Sign-Language-Recognition"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center bg-royal-blue text-white py-2 px-4 rounded-md font-medium transition-colors hover:bg-silver-300 hover:text-black"
-            >
-              View
-              <span className="ml-2">➜</span>
-            </a>
-          </div>
-        </div>
-
-        {/* Project 3 - XAFAM */}
-        <div
-          className="relative h-80 rounded-lg shadow-silver overflow-hidden group"
-          style={{ backgroundImage: "url('/images/xafamemblem.png')", backgroundSize: "cover", backgroundPosition: "center" }}
-        >
-          <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 transition-all duration-300"></div>
-          <div className="relative z-10 p-6 flex flex-col justify-end h-full">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              XAFAM
-            </h3>
-            <p className="text-silver-300 text-sm mb-4">
-              XAFAM – a premium Gen Z lifestyle brand redefining style, community, and impact.
-            </p>
-            <Link
-              href="/asset"
-              className="inline-flex items-center bg-royal-blue text-white py-2 px-4 rounded-md font-medium transition-colors hover:bg-silver-300 hover:text-black"
-            >
-              View
-              <span className="ml-2">➜</span>
-            </Link>
-          </div>
-        </div>
-
+/* ── Achievement card ─────────────────────────────────────────────── */
+function AchCard({ icon, title, desc, side, delay }) {
+  const { ref, visible } = useReveal(delay);
+  return (
+    <div ref={ref} style={{ display: "flex", justifyContent: side === "right" ? "flex-end" : "flex-start",
+      opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)",
+      transition: "opacity 0.55s ease,transform 0.55s ease", paddingBottom: "28px" }}>
+      <div style={{ maxWidth: "340px", width: "100%", background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", padding: "20px 22px",
+        textAlign: side === "right" ? "right" : "left", transition: "border-color 0.3s" }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(100,165,255,0.35)"}
+        onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"}>
+        <div style={{ fontSize: "22px", marginBottom: "8px" }}>{icon}</div>
+        <h3 style={{ fontSize: "15px", fontWeight: 600, color: "#e0e0f0", marginBottom: "5px" }}>{title}</h3>
+        <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", lineHeight: 1.75, margin: 0 }}>{desc}</p>
       </div>
+    </div>
+  );
+}
 
-      {/* ImanVerse Detailed Description
-      <div className="mt-16 bg-gradient-to-r from-green-900/30 to-emerald-800/20 rounded-2xl p-8 border border-emerald-500/20">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            <h3 className="text-2xl font-bold text-white mb-4 flex items-center">
-              <span className="text-emerald-400 mr-2">🌙</span>
-              About ImanVerse
-            </h3>
-            <p className="text-emerald-100 leading-relaxed mb-4">
-              ImanVerse is a comprehensive Islamic platform designed to serve the Muslim community with modern, accessible spiritual resources. 
-              Built with cutting-edge technology, it provides:
+/* ── Job card ─────────────────────────────────────────────────────── */
+function JobCard({ icon, label, desc, delay }) {
+  const { ref, visible } = useReveal(delay);
+  return (
+    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.5s ease,transform 0.5s ease" }}>
+      <div style={{
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(100,200,130,0.12)",
+        borderRadius: "14px", padding: "22px 20px", height: "100%", boxSizing: "border-box",
+        transition: "border-color 0.3s,background 0.3s,box-shadow 0.3s",
+      }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(100,200,130,0.35)"; e.currentTarget.style.background = "rgba(100,200,130,0.04)"; e.currentTarget.style.boxShadow = "0 0 20px rgba(100,200,130,0.06)"; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(100,200,130,0.12)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.boxShadow = "none"; }}>
+        <div style={{ fontSize: "24px", marginBottom: "12px" }}>{icon}</div>
+        <h3 style={{ fontSize: "14px", fontWeight: 600, color: "#dde8ee", marginBottom: "7px" }}>{label}</h3>
+        <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.36)", lineHeight: 1.8, margin: 0 }}>{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PAGE
+══════════════════════════════════════════════════════════════════ */
+export default function Home() {
+  const [heroIn, setHeroIn]     = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const heroRef = useRef(null);
+
+  useEffect(() => {
+    const el = heroRef.current; if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setHeroIn(true); obs.disconnect(); } }, { threshold: 0.05 });
+    obs.observe(el); return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
+  return (
+    <>
+      {/* ════ INTRO — always shows on every page load ════ */}
+      <IntroScreen />
+
+      <ParticleBackground/>
+      <div style={{ position: "fixed", inset: 0, background: "rgba(2,4,14,0.82)", zIndex: 0, pointerEvents: "none" }}/>
+
+      <div style={{ position: "relative", zIndex: 1, color: "#f0f0f0", overflowX: "hidden", width: "100%", maxWidth: "100vw", boxSizing: "border-box" }}>
+
+        {/* ═════ HERO ════════════════════════════════════════════════ */}
+        <section style={{ position: "relative", minHeight: "100dvh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <GalaxyOrb/>
+
+          {/* Vignettes */}
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "240px", background: "linear-gradient(to top,rgba(2,4,14,1) 0%,transparent)", pointerEvents: "none", zIndex: 2 }}/>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "120px", background: "linear-gradient(to bottom,rgba(2,4,14,0.65) 0%,transparent)", pointerEvents: "none", zIndex: 2 }}/>
+
+          {/* Hero text */}
+          <div ref={heroRef} style={{
+            position: "relative", zIndex: 3, pointerEvents: "none",
+            textAlign: "center", width: "100%",
+            padding: "clamp(110px,14dvh,160px) clamp(20px,6vw,80px) 140px",
+            boxSizing: "border-box",
+            opacity: heroIn ? 1 : 0, transform: heroIn ? "translateY(0)" : "translateY(30px)",
+            transition: "opacity 1.2s ease,transform 1.2s ease",
+          }}>
+            <p style={{
+              fontSize: "clamp(8px,1.1vw,10px)", letterSpacing: "0.65em", textTransform: "uppercase",
+              color: "rgba(180,210,255,0.88)", marginBottom: "18px",
+              textShadow: "0 0 24px rgba(2,4,14,0.95), 0 0 48px rgba(2,4,14,0.90), 0 2px 8px rgba(0,0,0,1)",
+            }}>
+              Data Science · Gen AI · Life Coaching
             </p>
-            <ul className="text-emerald-100 space-y-2 mb-6">
-              <li className="flex items-center">
-                <span className="text-emerald-400 mr-2">📖</span>
-                Complete Quran with translation and tafsir
-              </li>
-              <li className="flex items-center">
-                <span className="text-emerald-400 mr-2">🕌</span>
-                Accurate prayer times and Qibla direction
-              </li>
-              <li className="flex items-center">
-                <span className="text-emerald-400 mr-2">📚</span>
-                Islamic knowledge library and educational resources
-              </li>
-              <li className="flex items-center">
-                <span className="text-emerald-400 mr-2">🤲</span>
-                Daily duas and remembrance (Adhkar)
-              </li>
+
+            <h1 className="font-freight" style={{
+              fontSize: "clamp(3.5rem,11vw,9.5rem)", fontWeight: 200, lineHeight: 0.90,
+              color: "#eef0ff", letterSpacing: "-0.025em", marginBottom: "22px",
+              textShadow: "0 0 80px rgba(2,4,14,0.90), 0 4px 40px rgba(0,0,0,0.98), 0 0 120px rgba(2,4,14,0.80)",
+            }}>
+              Mohammad<br/>
+              <span style={{ color: "rgba(255,255,255,0.88)", fontWeight: 300 }}>Shafee</span>
+            </h1>
+
+            <p style={{
+              fontSize: "clamp(11px,1.8vw,16px)", letterSpacing: "0.28em", textTransform: "uppercase",
+              fontWeight: 800, color: "#ffffff", marginBottom: "10px",
+              WebkitTextStroke: "0.5px rgba(255,255,255,0.6)",
+              textShadow: [
+                "0 0 8px rgba(2,4,14,1)","0 0 20px rgba(2,4,14,1)","0 0 40px rgba(2,4,14,1)",
+                "0 0 70px rgba(2,4,14,1)","0 2px 6px rgba(0,0,0,1)","0 4px 16px rgba(0,0,0,1)",
+                "-2px -2px 0 rgba(2,4,14,0.95)","2px -2px 0 rgba(2,4,14,0.95)",
+                "-2px 2px 0 rgba(2,4,14,0.95)","2px 2px 0 rgba(2,4,14,0.95)",
+              ].join(","),
+            }}>
+              Unleashing Creativity · Pioneering AI
+            </p>
+
+            <div style={{ width: "56px", height: "1px", background: "linear-gradient(to right,transparent,rgba(140,185,255,0.6),transparent)", margin: "0 auto 28px" }}/>
+
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", marginBottom: "38px" }}>
+              {["Gen AI Engineer", "Data Scientist", "Published Author", "Life Coach"].map(tag => (
+                <span key={tag} style={{
+                  fontSize: "9px", letterSpacing: "0.12em", padding: "5px 14px", borderRadius: "99px",
+                  background: "rgba(2,4,18,0.80)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255,255,255,0.20)", color: "rgba(220,235,255,0.88)",
+                  boxShadow: "0 2px 14px rgba(0,0,0,0.70)",
+                }}>{tag}</span>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "12px", pointerEvents: "auto" }}>
+              <a href="#odyssey" style={btnSolid}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(255,255,255,0.2)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+                Explore My Work
+              </a>
+              <a href="mailto:md.shafee05s@gmail.com" style={btnOutline}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.10)"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}>
+                Get in Touch
+              </a>
+            </div>
+
+            {/* ── Download Resume button ── */}
+            <div style={{ marginTop: "14px", pointerEvents: "auto" }}>
+              <a
+                href="/files/shafee_CV.pdf"
+                download="Mohammad-Shafee-Resume.pdf"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "8px",
+                  fontSize: "12px", letterSpacing: "0.08em",
+                  color: "rgba(160,210,255,0.70)",
+                  textDecoration: "none",
+                  padding: "8px 18px",
+                  border: "1px solid rgba(100,165,255,0.22)",
+                  borderRadius: "99px",
+                  background: "rgba(100,165,255,0.05)",
+                  transition: "color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = "rgba(200,230,255,0.95)";
+                  e.currentTarget.style.borderColor = "rgba(100,165,255,0.55)";
+                  e.currentTarget.style.background = "rgba(100,165,255,0.12)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = "rgba(160,210,255,0.70)";
+                  e.currentTarget.style.borderColor = "rgba(100,165,255,0.22)";
+                  e.currentTarget.style.background = "rgba(100,165,255,0.05)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                {/* Download arrow icon */}
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6.5 1v7.5M6.5 8.5l-3-3m3 3 3-3M1.5 11h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Download Résumé
+              </a>
+            </div>
+
+
+          </div>
+
+          {/* Scroll indicator */}
+          <div style={{ position: "absolute", bottom: "28px", left: "50%", transform: "translateX(-50%)", zIndex: 3, display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", opacity: 0.22, animation: "bob 2.4s ease-in-out infinite", pointerEvents: "none" }}>
+            <span style={{ fontSize: "8px", letterSpacing: "0.35em", textTransform: "uppercase" }}>scroll</span>
+            <div style={{ width: "1px", height: "24px", background: "rgba(255,255,255,0.5)" }}/>
+          </div>
+          <style>{`
+            @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+            html { scroll-behavior: smooth; }
+            * { -webkit-tap-highlight-color: transparent; }
+          `}</style>
+        </section>
+
+        {/* ═════ SKILLS MARQUEE ════════════════════════════════════════ */}
+        <SkillsMarquee/>
+
+        {/* ═════ STICKY SECTION NAV ════════════════════════════════════ */}
+        <nav style={{
+          position: "sticky", top: 0, zIndex: 40,
+          background: scrolled ? "rgba(2,4,18,0.90)" : "rgba(2,4,18,0.60)",
+          backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${scrolled ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.04)"}`,
+          transition: "background 0.4s ease,border-color 0.4s ease",
+          width: "100%", boxSizing: "border-box",
+        }}>
+          <div style={{ overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+            <style>{`.nav-inner::-webkit-scrollbar{display:none}`}</style>
+            <ul className="nav-inner" style={{
+              display: "flex", flexWrap: "nowrap", gap: "2px",
+              padding: "10px clamp(12px,4vw,40px)", margin: 0, listStyle: "none",
+              width: "max-content", minWidth: "100%",
+            }}>
+              {[
+                ["odyssey","Odyssey"],["book","Book"],["passion","AI & DS"],
+                ["skills","Skills"],["experience","Experience"],["coaching","Coaching"],
+                ["projects","Projects"],["jobs","Remote Jobs"],
+                ["achievements","Wins"],["education","Education"],["contact","Contact"],
+              ].map(([id, label]) => (
+                <li key={id} style={{ flexShrink: 0 }}>
+                  <a href={`#${id}`} style={{
+                    display: "inline-block", padding: "7px 14px", whiteSpace: "nowrap",
+                    fontSize: "clamp(10px,1.4vw,12px)", letterSpacing: "0.04em",
+                    color: id === "jobs" ? "rgba(100,200,130,0.75)" : "rgba(255,255,255,0.50)",
+                    textDecoration: "none", borderRadius: "8px",
+                    transition: "color 0.25s,background 0.25s",
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.color = id === "jobs" ? "rgba(140,230,160,1)" : "#f0f2ff"; e.currentTarget.style.background = id === "jobs" ? "rgba(100,200,130,0.10)" : "rgba(100,165,255,0.12)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = id === "jobs" ? "rgba(100,200,130,0.75)" : "rgba(255,255,255,0.50)"; e.currentTarget.style.background = "transparent"; }}
+                  >{label}</a>
+                </li>
+              ))}
             </ul>
-            <a
-              href="https://imanverse.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center bg-white text-emerald-800 hover:bg-emerald-50 py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
-            >
-              <span>Visit ImanVerse</span>
-              <span className="ml-2">→</span>
-            </a>
           </div>
-          <div className="relative h-64 rounded-lg overflow-hidden border-2 border-emerald-500/30">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 to-green-800 flex items-center justify-center">
-              <div className="text-center text-white">
-                <div className="text-4xl mb-2">🌙</div>
-                <p className="text-lg font-semibold">ImanVerse</p>
-                <p className="text-sm text-emerald-200">Islamic Spiritual Platform</p>
+        </nav>
+
+        {/* ═════ ODYSSEY ═══════════════════════════════════════════════ */}
+        <Sec id="odyssey">
+          <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+            <SH label="The Journey" title="My AI & Data Science Odyssey" subtitle="Where Innovation Meets Passion"/>
+            {(() => { const { ref, visible } = useReveal(80); return (
+              <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease,transform 0.6s ease", textAlign: "center" }}>
+                <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.44)", lineHeight: 1.95, marginBottom: "18px" }}>
+                  Step into the world of Mohammad Shafee ur Rahaman — a visionary Data Science Engineering student igniting a revolution in emotional intelligence through AI. With expertise in Generative AI, NLP, and emotionally resonant systems, I'm crafting a future where technology feels human.
+                </p>
+                <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.44)", lineHeight: 1.95 }}>
+                  This portfolio is more than a showcase — it's an invitation to explore the mind of a creator who blends data with dreams. Each project, skill, and achievement is a stepping stone to something extraordinary.
+                </p>
               </div>
+            ); })()}
+          </div>
+        </Sec>
+
+        {/* ═════ BOOK ══════════════════════════════════════════════════ */}
+        <Sec id="book" tinted>
+          <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(300px,100%),1fr))", gap: "60px", alignItems: "center" }}>
+              {(() => { const { ref, visible } = useReveal(0); return (
+                <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateX(0)" : "translateX(-28px)", transition: "opacity 0.7s ease,transform 0.7s ease" }}>
+                  <div style={{ position: "relative", height: "380px", borderRadius: "14px", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.65)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <Image src="/images/arcana-cover.jpg" alt="The Arcana of Ascent" fill style={{ objectFit: "cover" }}/>
+                  </div>
+                </div>
+              ); })()}
+              {(() => { const { ref, visible } = useReveal(120); return (
+                <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateX(0)" : "translateX(28px)", transition: "opacity 0.7s ease,transform 0.7s ease" }}>
+                  <p style={{ fontSize: "9px", letterSpacing: "0.5em", textTransform: "uppercase", color: "rgba(110,170,255,0.65)", marginBottom: "12px" }}>Published Work</p>
+                  <h2 className="font-freight" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 300, color: "#f0f0f0", marginBottom: "20px" }}>The Arcana of Ascent</h2>
+                  <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.44)", lineHeight: 1.9, marginBottom: "14px" }}>
+                    <strong style={{ color: "rgba(255,255,255,0.72)" }}>The Arcana of Ascent</strong> is a study in quiet power. It confronts the inner territories most people bypass — where silence sharpens resolve, and endurance is forged without witnesses.
+                  </p>
+                  <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.44)", lineHeight: 1.9, marginBottom: "32px" }}>
+                    Built around the principle that transformation begins long before it is visible, the work moves through themes of restraint, inner tension, and disciplined self-awareness.
+                  </p>
+                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                    <a href="https://amzn.to/4pccTFI" target="_blank" rel="noopener noreferrer" style={btnSolid}>Buy eBook</a>
+                    <a href="https://www.amazon.com/dp/B0G53KB8SH" target="_blank" rel="noopener noreferrer" style={btnOutline}>Buy Physical</a>
+                  </div>
+                </div>
+              ); })()}
             </div>
           </div>
-        </div>
-      </div> */}
-    </div>
-  </div>
+        </Sec>
 
-  {/* Custom Styles */}
-  <style jsx>{`
-    .shadow-silver {
-      box-shadow: 0 0 20px rgba(192, 192, 192, 0.3);
-    }
-    .text-silver-300 {
-      color: #C0C0C0;
-    }
-    .bg-royal-blue {
-      background-color: #4169E1;
-    }
-    .bg-silver-300 {
-      background-color: #C0C0C0;
-    }
-  `}</style>
-</section>
-
-
-      {/* Achievements Section with Timeline */}
-      <section id="achievements" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto relative">
-            <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-12 text-center font-bold animate-fadeInUp text-white">
-              Key Achievements & Activities
-            </h2>
-            <div className="relative">
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-silver-300"></div>
-              {/* Achievement Items */}
-              <div className="mb-16 flex items-center justify-between flex-row-reverse">
-                <div className="w-5/12 text-left pl-8">
-                  <h3 className="text-xl font-medium text-royal-blue mb-2">Hack-A-Bot Winner</h3>
-                  <p className="text-silver-500">Campus-level AI competition showcasing innovative solutions.</p>
+        {/* ═════ AI & DS ═══════════════════════════════════════════════ */}
+        <Sec id="passion">
+          <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(300px,100%),1fr))", gap: "60px", alignItems: "center" }}>
+              {(() => { const { ref, visible } = useReveal(0); return (
+                <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateX(0)" : "translateX(-28px)", transition: "opacity 0.7s ease,transform 0.7s ease" }}>
+                  <p style={{ fontSize: "9px", letterSpacing: "0.5em", textTransform: "uppercase", color: "rgba(110,170,255,0.65)", marginBottom: "12px" }}>Passion</p>
+                  <h2 className="font-freight" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 300, color: "#f0f0f0", marginBottom: "22px" }}>My Passion for<br/>AI & Data Science</h2>
+                  <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.44)", lineHeight: 1.9, marginBottom: "16px" }}>
+                    Driven by a profound interest in artificial intelligence and data science, I specialize in creating innovative solutions that bridge human emotions with cutting-edge technology.
+                  </p>
                 </div>
-                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-royal-blue rounded-full"></div>
-              </div>
-              <div className="mb-16 flex items-center justify-between">
-                <div className="w-5/12 text-right pr-8">
-                  <h3 className="text-xl font-medium text-royal-blue mb-2">Flipkart Grid 5.0 Participant</h3>
-                  <p className="text-silver-500">National tech innovation challenge, 2024.</p>
+              ); })()}
+              {(() => { const { ref, visible } = useReveal(120); return (
+                <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateX(0)" : "translateX(28px)", transition: "opacity 0.7s ease,transform 0.7s ease" }}>
+                  <div style={{ position: "relative", height: "320px", borderRadius: "14px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 0 40px rgba(60,100,255,0.09)" }}>
+                    <Image src="/images/AI+DS.png" alt="AI and Data Science" fill style={{ objectFit: "cover" }}/>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top,rgba(2,4,14,0.5) 0%,transparent 60%)" }}/>
+                  </div>
                 </div>
-                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-royal-blue rounded-full"></div>
-              </div>
-              <div className="flex items-center justify-between flex-row-reverse">
-                <div className="w-5/12 text-left pl-8">
-                  <h3 className="text-xl font-medium text-royal-blue mb-2">T-Hub Visit</h3>
-                  <p className="text-silver-500">Practical skill-building session through community & tech exercises.</p>
-                </div>
-                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-royal-blue rounded-full"></div>
-              </div>
+              ); })()}
             </div>
           </div>
-        </div>
-        <style jsx>{`
-          .text-royal-blue {
-            color: #4169E1;
-          }
-          .text-silver-300 {
-            color: #C0C0C0;
-          }
-          .text-silver-500 {
-            color: #A0A0A0;
-          }
-          .bg-royal-blue {
-            background-color: #4169E1;
-          }
-        `}</style>
-      </section>
+        </Sec>
 
-      {/* Education and Certifications Section with Accordion Style */}
-      <section id="education" className="py-24 bg-gradient-to-r from-gray-900 to-blue-950 text-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-12 text-center font-bold animate-fadeInUp text-white">
-              My Academic & Professional Milestones
-            </h2>
-            <div className="space-y-6">
-              <div className="bg-blue-950 p-6 rounded-lg shadow-silver transition-all duration-300 hover:shadow-royal-blue">
-                <h3 className="text-2xl font-semibold text-royal-blue mb-4"> Highest qualification </h3>
-                <div className="mb-6">
-                  <h4 className="text-xl font-medium text-white">ACE Engineering College, Hyderabad</h4>
-                  <p className="text-silver-500">B.Tech in Data Science Engineering (2021–2025)</p>
-                  <p className="text-silver-500">CGPA: 7.71</p>
+        {/* ═════ SKILLS ════════════════════════════════════════════════ */}
+        <Sec id="skills" tinted>
+          <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+            <SH label="Capabilities" title="My Arsenal of Expertise"/>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(360px,100%),1fr))", gap: "48px" }}>
+              {[
+                { cat: "Technical Mastery", items: [
+                  { t: "Generative AI & NLP", d: "Expert in creating AI systems that understand and generate human-like language and emotions." },
+                  { t: "Machine Learning Models", d: "Proficient in Decision Trees, LightGBM, YOLO, and real-time inference." },
+                  { t: "Data Analysis & Visualization", d: "Skilled in Pandas, NumPy, SQL, Tableau, and Power BI." },
+                ]},
+                { cat: "Soft Skills & Coaching", items: [
+                  { t: "Life Coaching & Counseling", d: "Certified in life coaching — personal growth, career development, emotional support." },
+                  { t: "Communication & Collaboration", d: "Strong in critical thinking, problem-solving, and team collaboration." },
+                ]},
+              ].map(({ cat, items }, ci) => {
+                const { ref, visible } = useReveal(ci * 100);
+                return (
+                  <div key={ci} ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease,transform 0.6s ease" }}>
+                    <p style={{ fontSize: "9px", letterSpacing: "0.4em", textTransform: "uppercase", color: "rgba(110,170,255,0.65)", marginBottom: "20px" }}>{cat}</p>
+                    <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "20px" }}>
+                      {items.map(({ t, d }, i) => {
+                        const { ref: r, visible: v } = useReveal(i * 60);
+                        return (
+                          <li key={i} ref={r} style={{ display: "flex", gap: "14px", opacity: v ? 1 : 0, transform: v ? "translateX(0)" : "translateX(-16px)", transition: "opacity 0.5s ease,transform 0.5s ease" }}>
+                            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "rgba(140,185,255,0.55)", flexShrink: 0, marginTop: "7px" }}/>
+                            <div>
+                              <h4 style={{ fontSize: "14px", fontWeight: 600, color: "#e8eaf0", marginBottom: "4px" }}>{t}</h4>
+                              <p style={{ fontSize: "12.5px", color: "rgba(255,255,255,0.36)", lineHeight: 1.75, margin: 0 }}>{d}</p>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Sec>
+
+        {/* ═════ EXPERIENCE ════════════════════════════════════════════ */}
+        <Sec id="experience">
+          <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+            <SH label="Work History" title="Professional Experience"/>
+            {(() => { const { ref, visible } = useReveal(0); return (
+              <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease,transform 0.6s ease" }}>
+                <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: "14px", padding: "28px", transition: "border-color 0.3s,box-shadow 0.3s" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.38)"; e.currentTarget.style.boxShadow = "0 0 24px rgba(212,175,55,0.07)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"; e.currentTarget.style.boxShadow = "none"; }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
+                    <div>
+                      <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#e8e0c0", marginBottom: "6px" }}>Python Engineer – Gen AI Intern</h3>
+                      <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.40)" }}>ADVI Group of Companies · Hyderabad</p>
+                    </div>
+                    <span style={{ fontSize: "11px", padding: "4px 12px", borderRadius: "99px", background: "rgba(212,175,55,0.09)", border: "1px solid rgba(212,175,55,0.24)", color: "rgba(212,175,55,0.80)", whiteSpace: "nowrap" }}>Feb 2025 – Aug 2025</span>
+                  </div>
                 </div>
-                {/* <div>
-                  <h4 className="text-xl font-medium text-white">Narayana Junior College</h4>
-                  <p className="text-silver-500">Intermediate (MPC) – 92.3%</p>
-                </div> */}
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "32px" }}>
+                  <Link href="/portfolio" style={btnOutline}>View Full Portfolio →</Link>
+                </div>
               </div>
-              <div className="bg-blue-950 p-6 rounded-lg shadow-silver transition-all duration-300 hover:shadow-royal-blue">
-                <h3 className="text-2xl font-semibold text-royal-blue mb-4">Key Certifications</h3>
-                <ul className="space-y-3 text-silver-500">
-                  <li>• Prompt Engineering Certificate from 1 Million Prompters (Dubai Prince) </li>
-                  <li>• Salesforce VIP Internship </li>
-                  <li>• Certified Data Science Engineering Student</li>
-                  <li>• UiPath RPA – Infosys Foundation</li>
-                </ul>
+            ); })()}
+          </div>
+        </Sec>
+
+        {/* ═════ LIFE COACHING ═════════════════════════════════════════ */}
+        <Sec id="coaching" tinted>
+          <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+            <SH label="Guidance" title="Life Coaching & Personal Growth"
+              subtitle="Every person carries a Definite Major Purpose — a legacy waiting to unfold. Through compassionate inquiry and structured guidance, I help you uncover clarity, face limiting fears, and align your actions with your deepest values."/>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(210px,100%),1fr))", gap: "14px", marginBottom: "40px" }}>
+              {[
+                { icon: "🎯", t: "Life Skills & Clarity", d: "Build resilience, emotional intelligence, and daily habits rooted in your values." },
+                { icon: "💼", t: "Career & Purpose Alignment", d: "Discover work that reflects your passions, strengths, and Definite Major Purpose." },
+                { icon: "💙", t: "Emotional Balance", d: "Navigate stress, self-doubt, and inner conflict with tools to reclaim your calm." },
+                { icon: "📈", t: "Growth Mindset Coaching", d: "Transform fear into fuel. Develop a mindset that embraces setbacks as feedback." },
+              ].map(({ icon, t, d }, i) => {
+                const { ref, visible } = useReveal(i * 70);
+                return (
+                  <div key={i} ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.5s ease,transform 0.5s ease" }}>
+                    <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "14px", padding: "24px 20px", height: "100%", boxSizing: "border-box", transition: "border-color 0.3s,background 0.3s" }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(100,165,255,0.38)"; e.currentTarget.style.background = "rgba(100,165,255,0.04)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>
+                      <div style={{ fontSize: "24px", marginBottom: "12px" }}>{icon}</div>
+                      <h3 style={{ fontSize: "14px", fontWeight: 600, color: "#e0e0f0", marginBottom: "8px" }}>{t}</h3>
+                      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.36)", lineHeight: 1.8, margin: 0 }}>{d}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <Link href="/coaching" style={btnSolid}>Begin Your Coaching Journey →</Link>
+            </div>
+          </div>
+        </Sec>
+
+        {/* ═════ PROJECTS ══════════════════════════════════════════════ */}
+        <Sec id="projects">
+          <div style={{ maxWidth: "1060px", margin: "0 auto" }}>
+            <SH label="Featured Work" title="Projects"/>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(260px,100%),1fr))", gap: "16px" }}>
+              <ProjectCard
+                delay={0} isGame
+                bgGrad="linear-gradient(135deg,rgba(0,10,30,0.97) 0%,rgba(0,20,50,0.92) 50%,rgba(0,8,24,1) 100%)"
+                title="N.RNR — Neon Runner"
+                desc="An unlimited browser game built for pure enjoyment. Double jump, dodge platforms, survive the infinite neon void."
+                tags={["HTML5 Canvas", "Vanilla JS", "Game Dev"]}
+                badge="🎮 Play Now"
+              />
+              <ProjectCard delay={80} image="/images/cricket.jpg"
+                title="Cricket Performance Prediction"
+                desc="ML model predicting player performance using Decision Trees and LightGBM."
+                href="https://github.com/shafee05/Cricket-Player-Performance-prediction" external/>
+              <ProjectCard delay={160} image="/images/gesturetalk.jpg"
+                title="GestureTalk"
+                desc="Real-time sign language recognition using YOLO, DWpose, and 3D animation."
+                href="https://github.com/shafee05/GestureTalk-Sign-Language-Recognition" external/>
+            </div>
+          </div>
+        </Sec>
+
+        {/* ═════ IMANVERSE DEDICATION ══════════════════════════════════ */}
+        {(() => { const { ref, visible } = useReveal(0); return (
+          <section ref={ref} style={{
+            padding: "70px clamp(20px,5vw,64px)",
+            borderTop: "1px solid rgba(255,255,255,0.04)",
+            width: "100%", boxSizing: "border-box",
+            opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)",
+            transition: "opacity 0.7s ease, transform 0.7s ease",
+          }}>
+            <div style={{ maxWidth: "860px", margin: "0 auto", display: "flex", flexWrap: "wrap", gap: "clamp(24px,4vw,48px)", alignItems: "center" }}>
+              <div style={{ position: "relative", width: "clamp(80px,16vw,120px)", height: "clamp(80px,16vw,120px)", flexShrink: 0, borderRadius: "18px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 0 32px rgba(60,200,120,0.08)" }}>
+                <Image src="/images/quran-bg.jpg" alt="ImanVerse" fill style={{ objectFit: "cover", opacity: 0.7 }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(0,40,20,0.6), rgba(0,20,10,0.8))" }} />
+                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px" }}>🌙</div>
+              </div>
+              <div style={{ flex: "1 1 280px", minWidth: 0 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center", marginBottom: "10px" }}>
+                  <p style={{ fontSize: "9px", letterSpacing: "0.5em", textTransform: "uppercase", color: "rgba(100,200,130,0.6)", margin: 0 }}>A Dedication</p>
+                  <span style={{ fontSize: "9px", letterSpacing: "0.1em", padding: "3px 10px", borderRadius: "99px", background: "rgba(100,200,130,0.08)", border: "1px solid rgba(100,200,130,0.2)", color: "rgba(100,200,130,0.75)" }}>Not a project — a purpose</span>
+                </div>
+                <h3 className="font-freight" style={{ fontSize: "clamp(1.4rem,3vw,2rem)", fontWeight: 300, color: "#e8f0e8", marginBottom: "10px" }}>ImanVerse</h3>
+                <p style={{ fontSize: "13.5px", color: "rgba(255,255,255,0.40)", lineHeight: 1.9, marginBottom: "16px", maxWidth: "520px" }}>
+                  An Islamic platform built out of love for the faith — Quran access, prayer times, and spiritual resources for the Muslim community. This wasn't built for a portfolio. It was built for a purpose.
+                </p>
+                <a href="https://imanverse.vercel.app/" target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: "11px", fontWeight: 600, color: "rgba(100,200,130,0.75)", textDecoration: "none", letterSpacing: "0.06em", display: "inline-flex", alignItems: "center", gap: "5px", transition: "color 0.2s" }}
+                  onMouseEnter={e => e.currentTarget.style.color = "rgba(140,230,160,1)"}
+                  onMouseLeave={e => e.currentTarget.style.color = "rgba(100,200,130,0.75)"}>
+                  Visit ImanVerse ↗
+                </a>
               </div>
             </div>
-            <div className="flex justify-center mt-12">
-              <Link
-                href="/portfolio"
-                className="flex items-center text-white hover:text-royal-blue transition-colors duration-300"
-              >
-                <span className="mr-2 text-lg font-medium">Discover My Full Story</span>
-                <div className="relative w-5 h-5">
-                  <Image
-                    src="/svg/arrow-white-right.svg"
-                    alt="Arrow"
-                    fill
-                    className="object-contain"
-                  />
+          </section>
+        ); })()}
+
+        {/* ═════ REMOTE JOBS ═══════════════════════════════════════════ */}
+        <Sec id="jobs" tinted>
+          <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+            <SH
+              label="Curated Opportunities"
+              title="Vetted Remote Jobs"
+              subtitle="I handpick and verify the best remote roles in AI, Data Science, and Tech. Real opportunities, fair pay — updated regularly. No noise, just results."
+            />
+
+            {/* 4 category cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(200px,100%),1fr))", gap: "14px", marginBottom: "40px" }}>
+              <JobCard delay={0}   icon="🤖" label="AI & Machine Learning" desc="LLM, NLP, Computer Vision — remote roles worldwide." />
+              <JobCard delay={80}  icon="📊" label="Data Science & Analytics" desc="Python, SQL, Power BI — entry to senior level." />
+              <JobCard delay={160} icon="💻" label="Full-Stack & Web Dev" desc="React, Next.js, Node — freelance to full-time." />
+              <JobCard delay={240} icon="🌍" label="Fully Remote · Global" desc="Location-independent roles, many paying in USD." />
+            </div>
+
+            {/* Preview strip */}
+            {(() => { const { ref, visible } = useReveal(0); return (
+              <div ref={ref} style={{ background: "rgba(100,200,130,0.05)", border: "1px solid rgba(100,200,130,0.18)", borderRadius: "16px", padding: "clamp(20px,4vw,36px)", marginBottom: "36px", opacity: visible?1:0, transform: visible?"translateY(0)":"translateY(20px)", transition: "opacity 0.6s ease, transform 0.6s ease" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "20px" }}>
+                  <div>
+                    <p style={{ fontSize: "9px", letterSpacing: "0.5em", textTransform: "uppercase", color: "rgba(100,200,130,0.65)", marginBottom: "6px" }}>Live Board</p>
+                    <h3 className="font-freight" style={{ fontSize: "clamp(1.3rem,3vw,1.9rem)", fontWeight: 300, color: "#f0f0f0" }}>Jobs for You</h3>
+                  </div>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "rgba(100,200,130,0.85)", boxShadow: "0 0 8px rgba(100,200,130,0.7)", animation: "livePulse 2s ease-in-out infinite" }} />
+                    <span style={{ fontSize: "11px", color: "rgba(100,200,130,0.70)", letterSpacing: "0.06em" }}>Updated regularly</span>
+                  </div>
                 </div>
+
+                {/* Sample job rows */}
+                {[
+                  { role: "ML Engineer (Remote)", company: "AI Startup · Global", type: "Full-time", pay: "$60k–$90k" },
+                  { role: "Data Analyst (WFH)", company: "Tech MNC · India", type: "Freelance", pay: "₹40k–₹70k/mo" },
+                  { role: "Python Developer (Remote)", company: "SaaS Company · US", type: "Contract", pay: "$40–$60/hr" },
+                ].map(({ role, company, type, pay }, i) => {
+                  const { ref: r, visible: v } = useReveal(i * 60);
+                  return (
+                    <div key={i} ref={r} style={{
+                      display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center",
+                      gap: "12px", padding: "14px 0",
+                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                      opacity: v?1:0, transform: v?"translateX(0)":"translateX(-12px)",
+                      transition: `opacity 0.45s ease ${i*60}ms, transform 0.45s ease ${i*60}ms`,
+                    }}>
+                      <div>
+                        <p style={{ fontSize: "14px", fontWeight: 600, color: "#e0e0f0", marginBottom: "3px" }}>{role}</p>
+                        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.36)" }}>{company}</p>
+                      </div>
+                      <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                        <span style={{ fontSize: "10px", padding: "3px 10px", borderRadius: "99px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(200,220,255,0.65)" }}>{type}</span>
+                        <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(100,200,130,0.85)" }}>{pay}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.22)", textAlign: "center", marginTop: "12px", fontStyle: "italic" }}>
+                  Sample listings — visit the full board for live opportunities
+                </p>
+              </div>
+            ); })()}
+
+            {/* CTA row */}
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px" }}>
+              {/* External jobs board */}
+              <a href="https://shafee05.github.io/Jobs-for-you/" target="_blank" rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "9px",
+                  background: "rgba(100,200,130,0.12)", border: "1.5px solid rgba(100,200,130,0.35)",
+                  color: "rgba(140,230,160,0.95)", borderRadius: "99px",
+                  padding: "14px 30px", fontSize: "12px", fontWeight: 700,
+                  letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none",
+                  transition: "background 0.2s, transform 0.2s, box-shadow 0.2s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(100,200,130,0.22)"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 28px rgba(100,200,130,0.15)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(100,200,130,0.12)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                Browse All Opportunities →
+              </a>
+              {/* Internal Craft page anchor */}
+              <Link href="/craft#jobs"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "8px",
+                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)",
+                  color: "rgba(200,215,255,0.75)", borderRadius: "99px",
+                  padding: "14px 26px", fontSize: "12px", letterSpacing: "0.06em",
+                  textDecoration: "none", transition: "background 0.2s, transform 0.2s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.10)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.transform = "translateY(0)"; }}>
+                View on Craft Page ↗
               </Link>
             </div>
           </div>
-        </div>
-        <style jsx>{`
-          .shadow-silver {
-            box-shadow: 0 0 20px rgba(192, 192, 192, 0.3);
-          }
-          .shadow-royal-blue {
-            box-shadow: 0 0 20px rgba(65, 105, 225, 0.3);
-          }
-          .text-royal-blue {
-            color: #4169E1;
-          }
-          .text-silver-500 {
-            color: #A0A0A0;
-          }
-        `}</style>
-      </section>
+          <style>{`@keyframes livePulse{0%,100%{opacity:0.85;transform:scale(1)}50%{opacity:1;transform:scale(1.25)}}`}</style>
+        </Sec>
 
-      {/* Contact Section with Premium Form Look */}
-      <section id="contact" className="py-24 bg-gradient-to-r from-blue-950 to-gray-900 text-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-freight text-4xl md:text-5xl lg:text-6xl mb-6 font-bold animate-fadeInUp text-white">
-              Let's Create Something Extraordinary
-            </h2>
-            <p className="text-lg text-center mb-12 max-w-2xl mx-auto text-silver-500">
-              I'm eager to collaborate on groundbreaking projects, share bold ideas, or join your vision to shape the future. Take the first step—connect with me today!
-            </p>
-            <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-8">
-              <a
-                href="mailto:md.shafee05s@gmail.com"
-                className="flex items-center justify-center bg-royal-blue hover:bg-royal-blue-dark text-white py-3 px-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-royal-blue"
-              >
-                Email Me
-              </a>
-              <a
-                href="https://www.linkedin.com/in/mohammad-shafee05"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center bg-royal-blue hover:bg-royal-blue-dark text-white py-3 px-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-royal-blue"
-              >
-                Connect on LinkedIn
-              </a>
+        {/* ═════ ACHIEVEMENTS ══════════════════════════════════════════ */}
+        <Sec id="achievements">
+          <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+            <SH label="Milestones" title="Key Achievements & Activities"/>
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: "1px", background: "rgba(255,255,255,0.07)", transform: "translateX(-50%)" }}/>
+              {[
+                { icon: "🏆", title: "Hack-A-Bot Winner", desc: "Campus-level AI competition showcasing innovative solutions.", side: "right" },
+                { icon: "🎮", title: "N.RNR — Browser Game", desc: "Built a complete browser game in a single HTML file. Players from around the world challenged to beat the 50,000 score.", side: "left" },
+                { icon: "🔬", title: "Flipkart Grid 5.0 Participant", desc: "National tech innovation challenge, 2024.", side: "right" },
+                { icon: "🌐", title: "T-Hub Visit", desc: "Practical skill-building session through community & tech exercises.", side: "left" },
+              ].map((a, i) => <AchCard key={i} {...a} delay={i * 100}/>)}
             </div>
           </div>
+        </Sec>
+
+        {/* ═════ EDUCATION ═════════════════════════════════════════════ */}
+        <Sec id="education" tinted>
+          <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+            <SH label="Academic Background" title="Academic & Professional Milestones"/>
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              {[
+                { heading: "Highest Qualification", rows: [{ l: "ACE Engineering College, Hyderabad", s: "B.Tech in Data Science Engineering (2021–2025) · CGPA: 7.71" }] },
+                { heading: "Key Certifications", rows: [
+                  { l: "Prompt Engineering — 1 Million Prompters (Dubai Prince)" },
+                  { l: "Salesforce VIP Internship" },
+                  { l: "Certified Data Science Engineering Student" },
+                  { l: "UiPath RPA – Infosys Foundation" },
+                ]},
+              ].map(({ heading, rows }, i) => {
+                const { ref, visible } = useReveal(i * 80);
+                return (
+                  <div key={i} ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease,transform 0.6s ease" }}>
+                    <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", padding: "26px 28px", transition: "border-color 0.3s,box-shadow 0.3s" }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(100,165,255,0.32)"; e.currentTarget.style.boxShadow = "0 0 20px rgba(100,165,255,0.07)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }}>
+                      <p style={{ fontSize: "9px", letterSpacing: "0.4em", textTransform: "uppercase", color: "rgba(110,170,255,0.65)", marginBottom: "16px" }}>{heading}</p>
+                      {rows.map(({ l, s }, j) => (
+                        <div key={j} style={{ marginBottom: j < rows.length - 1 ? "12px" : 0 }}>
+                          <p style={{ fontSize: "14px", color: "#e0e0f0", fontWeight: 500, marginBottom: s ? "3px" : 0 }}>{l}</p>
+                          {s && <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.36)" }}>{s}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Sec>
+
+        {/* ═════ CONTACT ═══════════════════════════════════════════════ */}
+        <Sec id="contact">
+          <div style={{ maxWidth: "560px", margin: "0 auto", textAlign: "center" }}>
+            {(() => { const { ref, visible } = useReveal(0); return (
+              <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.6s ease,transform 0.6s ease" }}>
+                <p style={{ fontSize: "9px", letterSpacing: "0.55em", textTransform: "uppercase", color: "rgba(110,170,255,0.65)", marginBottom: "14px" }}>Let's Connect</p>
+                <h2 className="font-freight" style={{ fontSize: "clamp(2rem,5vw,3.6rem)", fontWeight: 300, color: "#f0f0f0", marginBottom: "18px" }}>
+                  Let's Create Something<br/>Extraordinary
+                </h2>
+                <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.36)", lineHeight: 1.85, marginBottom: "40px" }}>
+                  I'm eager to collaborate on groundbreaking projects, share bold ideas, or join your vision to shape the future. Take the first step — connect with me today.
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "12px" }}>
+                  <a href="mailto:md.shafee05s@gmail.com" style={btnSolid}
+                    onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+                    onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>Email Me</a>
+                  <a href="https://www.linkedin.com/in/mohammad-shafee05" target="_blank" rel="noopener noreferrer" style={btnOutline}
+                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.09)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.transform = "translateY(0)"; }}>
+                    Connect on LinkedIn
+                  </a>
+                </div>
+              </div>
+            ); })()}
+          </div>
+        </Sec>
+
+      </div>
+
+      {/* ════ FLOATING PLANS WIDGET ════ */}
+      <PlansWidget />
+    </>
+  );
+}
+
+/* ── Plans Widget ─────────────────────────────────────────────────────────── */
+const PLANS = [
+  { tier: "Starter",      price: "₹1,999", label: "Static Portfolio",  tagline: "Perfect for students & freshers", highlight: false, features: ["Single-page design","Mobile responsive","GitHub & LinkedIn links","Contact section","Delivered in 3 days"],      emailLabel: "Static Portfolio" },
+  { tier: "Professional", price: "₹4,999", label: "Multi-Page Website", tagline: "Most popular · Best value",        highlight: true,  features: ["5–8 pages","Fully responsive","Custom animations","Contact form","Social embeds","SEO basics","Delivered in 7 days"], emailLabel: "Multi-Page Website" },
+  { tier: "Business",     price: "₹9,999", label: "Business Platform",  tagline: "For startups & companies",        highlight: false, features: ["Everything in Professional","Custom domain + hosting","Business email","Payment integration","30-day support","Delivered in 14 days"], emailLabel: "Business Platform" },
+];
+
+function PlansWidget() {
+  const [open, setOpen] = useState(false);
+  const [pulse, setPulse] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setPulse(false), 4200); return () => clearTimeout(t); }, []);
+
+  return (
+    <>
+      <style>{`
+        @keyframes pulseRing { 0%{transform:scale(1);opacity:0.7} 100%{transform:scale(1.7);opacity:0} }
+        @keyframes slideUp   { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .plans-panel::-webkit-scrollbar{width:4px}
+        .plans-panel::-webkit-scrollbar-thumb{background:rgba(100,165,255,0.2);border-radius:99px}
+      `}</style>
+
+      {open && (
+        <div className="plans-panel" style={{
+          position: "fixed",
+          bottom: "calc(clamp(16px,4vw,28px) + 60px + env(safe-area-inset-bottom, 0px))",
+          right: "clamp(16px,4vw,32px)",
+          zIndex: 200, width: "min(820px, calc(100vw - 32px))",
+          maxHeight: "80dvh", overflowY: "auto",
+          background: "rgba(4,6,22,0.97)",
+          border: "1px solid rgba(100,165,255,0.18)",
+          borderRadius: "20px",
+          backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+          boxShadow: "0 0 60px rgba(60,100,255,0.15), 0 24px 80px rgba(0,0,0,0.7)",
+          animation: "slideUp 0.3s ease",
+          padding: "28px clamp(16px,3vw,28px)",
+          paddingBottom: "max(28px, env(safe-area-inset-bottom, 28px))",
+        }} onClick={e => e.stopPropagation()}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "22px" }}>
+            <div>
+              <p style={{ fontSize: "9px", letterSpacing: "0.55em", textTransform: "uppercase", color: "rgba(100,165,255,0.6)", marginBottom: "6px" }}>Web Development</p>
+              <h3 className="font-freight" style={{ fontSize: "clamp(1.4rem,3vw,2rem)", fontWeight: 300, color: "#f0f0f0", lineHeight: 1 }}>I Build Websites</h3>
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.32)", marginTop: "6px" }}>Choose a plan → I'll reach out within 24 hours.</p>
+            </div>
+            <button onClick={() => setOpen(false)} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: "99px", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(255,255,255,0.5)", fontSize: "16px", flexShrink: 0, transition: "background 0.2s" }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}>×</button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: "12px" }}>
+            {PLANS.map(({ tier, price, label, tagline, highlight, features, emailLabel }) => (
+              <div key={tier} style={{
+                position: "relative", borderRadius: "16px", padding: "22px 18px",
+                border: highlight ? "1.5px solid rgba(100,165,255,0.50)" : "1px solid rgba(255,255,255,0.08)",
+                background: highlight ? "rgba(30,50,110,0.35)" : "rgba(255,255,255,0.025)",
+                boxShadow: highlight ? "0 0 32px rgba(100,165,255,0.10)" : "none",
+                display: "flex", flexDirection: "column",
+                transition: "transform 0.2s, box-shadow 0.2s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = highlight ? "0 0 48px rgba(100,165,255,0.18)" : "0 0 18px rgba(100,165,255,0.07)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = highlight ? "0 0 32px rgba(100,165,255,0.10)" : "none"; }}>
+                {highlight && <span style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: "rgba(100,165,255,0.88)", color: "#fff", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", padding: "3px 12px", borderRadius: "99px", whiteSpace: "nowrap" }}>MOST POPULAR</span>}
+                <p style={{ fontSize: "8px", letterSpacing: "0.4em", textTransform: "uppercase", color: highlight ? "rgba(140,200,255,0.65)" : "rgba(110,170,255,0.45)", marginBottom: "6px" }}>{tier}</p>
+                <div style={{ fontSize: "clamp(1.6rem,3vw,2rem)", fontWeight: 800, color: highlight ? "#c8e0ff" : "#e8eaf8", lineHeight: 1, marginBottom: "2px" }}>{price}</div>
+                <p style={{ fontSize: "12px", fontWeight: 600, color: "#d8ddf8", marginBottom: "2px" }}>{label}</p>
+                <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.30)", marginBottom: "14px", fontStyle: "italic" }}>{tagline}</p>
+                <div style={{ height: "1px", background: "rgba(255,255,255,0.06)", marginBottom: "12px" }} />
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 16px 0", flex: 1, display: "flex", flexDirection: "column", gap: "7px" }}>
+                  {features.map((f, fi) => (
+                    <li key={fi} style={{ display: "flex", gap: "8px", fontSize: "11.5px", color: "rgba(255,255,255,0.48)" }}>
+                      <span style={{ color: highlight ? "rgba(140,210,255,0.75)" : "rgba(100,200,130,0.65)", flexShrink: 0, fontSize: "11px" }}>✓</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                <a href={`mailto:md.shafee05s@gmail.com?subject=Website%20Enquiry%20—%20${encodeURIComponent(emailLabel)}`}
+                  style={{ display: "block", textAlign: "center", padding: "10px 16px", borderRadius: "10px", fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textDecoration: "none", textTransform: "uppercase", background: highlight ? "rgba(100,165,255,0.85)" : "rgba(255,255,255,0.07)", color: highlight ? "#fff" : "rgba(200,220,255,0.80)", border: highlight ? "none" : "1px solid rgba(255,255,255,0.12)", transition: "background 0.2s" }}
+                  onMouseEnter={e => e.currentTarget.style.background = highlight ? "rgba(100,165,255,1)" : "rgba(255,255,255,0.13)"}
+                  onMouseLeave={e => e.currentTarget.style.background = highlight ? "rgba(100,165,255,0.85)" : "rgba(255,255,255,0.07)"}>
+                  Get Started →
+                </a>
+              </div>
+            ))}
+          </div>
+          <p style={{ textAlign: "center", fontSize: "10px", color: "rgba(255,255,255,0.20)", marginTop: "18px" }}>
+            All packages include an initial consultation · I'll respond within 24 hours
+          </p>
         </div>
-        <style jsx>{`
-          .shadow-royal-blue {
-            box-shadow: 0 0 20px rgba(65, 105, 225, 0.3);
-          }
-          .bg-royal-blue {
-            background-color: #4169E1;
-          }
-          .bg-royal-blue-dark {
-            background-color: #1E40AF;
-          }
-          .text-silver-500 {
-            color: #A0A0A0;
-          }
-        `}</style>
-      </section>
+      )}
+
+      {open && <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 199, background: "rgba(0,0,0,0.25)", backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />}
+
+      <div style={{ position: "fixed", bottom: "calc(clamp(16px,4vw,28px) + env(safe-area-inset-bottom, 0px))", right: "clamp(16px,4vw,32px)", zIndex: 201, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+        {!open && (
+          <div style={{ background: "rgba(4,6,22,0.94)", border: "1px solid rgba(100,165,255,0.22)", borderRadius: "99px", padding: "5px 14px", fontSize: "10px", color: "rgba(180,210,255,0.75)", letterSpacing: "0.06em", whiteSpace: "nowrap", backdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(0,0,0,0.4)", opacity: pulse ? 1 : 0.85 }}>
+            ✦ I build websites
+          </div>
+        )}
+        <div style={{ position: "relative" }}>
+          {pulse && !open && <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1.5px solid rgba(100,165,255,0.5)", animation: "pulseRing 1.8s ease-out infinite", pointerEvents: "none" }} />}
+          <button onClick={() => { setOpen(p => !p); setPulse(false); }}
+            style={{ width: "52px", height: "52px", borderRadius: "50%", background: open ? "rgba(100,165,255,0.22)" : "rgba(4,8,28,0.95)", border: `1.5px solid ${open ? "rgba(100,165,255,0.55)" : "rgba(100,165,255,0.30)"}`, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", cursor: "pointer", boxShadow: "0 0 24px rgba(60,100,255,0.25), 0 6px 24px rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.3s,border-color 0.3s,transform 0.2s,box-shadow 0.3s", color: "#a8ccff" }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.08)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(80,140,255,0.40), 0 8px 32px rgba(0,0,0,0.5)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 0 24px rgba(60,100,255,0.25), 0 6px 24px rgba(0,0,0,0.5)"; }}
+            aria-label="Website plans">
+            {open ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 19 9 12 22 5 9"/></svg>
+            )}
+          </button>
+        </div>
+      </div>
     </>
   );
 }
