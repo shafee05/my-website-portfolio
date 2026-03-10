@@ -100,74 +100,25 @@ export function Navbar() {
           </div>
         </nav>
 
-        {/* Mobile hamburger / close button */}
+        {/* Mobile hamburger */}
         <button
-          className="lg:hidden flex items-center justify-center rounded-full transition-all duration-300"
-          style={{
-            width: '44px',
-            height: '44px',
-            background: isMenuOpen
-              ? 'rgba(255,255,255,0.12)'
-              : 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.15)',
-          }}
+          className="lg:hidden w-10 h-10 flex flex-col justify-center items-center gap-1.5 rounded"
           onClick={toggleMenu}
-          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-label="Toggle menu"
         >
-          {/* Hamburger icon — hidden when open */}
-          <span
-            className="flex flex-col gap-[5px] transition-all duration-300"
-            style={{ opacity: isMenuOpen ? 0 : 1, transform: isMenuOpen ? 'scale(0.5)' : 'scale(1)', position: 'absolute' }}
-          >
-            <span className="block w-5 h-[1.5px] bg-white/80 rounded-full" />
-            <span className="block w-5 h-[1.5px] bg-white/80 rounded-full" />
-            <span className="block w-5 h-[1.5px] bg-white/80 rounded-full" />
-          </span>
-          {/* X icon — hidden when closed */}
-          <span
-            className="transition-all duration-300"
-            style={{ opacity: isMenuOpen ? 1 : 0, transform: isMenuOpen ? 'scale(1) rotate(0deg)' : 'scale(0.5) rotate(-90deg)', position: 'absolute' }}
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <line x1="2" y1="2" x2="16" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="16" y1="2" x2="2" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </span>
+          <span className={`block w-5 h-px bg-white/80 transition-all duration-300 origin-center ${isMenuOpen ? 'rotate-45 translate-y-[5px]' : ''}`} />
+          <span className={`block w-5 h-px bg-white/80 transition-all duration-300 ${isMenuOpen ? 'opacity-0 scale-x-0' : ''}`} />
+          <span className={`block w-5 h-px bg-white/80 transition-all duration-300 origin-center ${isMenuOpen ? '-rotate-45 -translate-y-[5px]' : ''}`} />
         </button>
       </div>
 
-      {/* Mobile full-screen menu — fully solid background, z-60 above everything */}
-      <div
-        className={`lg:hidden fixed inset-0 z-[60] transition-all duration-300 ${
-          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        style={{ background: 'rgb(2,4,14)', backgroundColor: '#02040e' }}
+      {/* Mobile full-screen menu */}
+      <div className={`lg:hidden fixed inset-0 z-40 transition-all duration-350 ${
+        isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}
+        style={{ background: 'rgba(2,4,14,0.98)', backdropFilter: 'blur(20px)' }}
       >
-        {/* Top accent line */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent, rgba(100,165,255,0.5), transparent)' }} />
-
-        {/* Dedicated close (X) button inside the panel — always visible */}
-        <button
-          onClick={closeMenu}
-          aria-label="Close menu"
-          style={{
-            position: 'absolute', top: '20px', right: '20px',
-            width: '44px', height: '44px', borderRadius: '50%',
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.18)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', zIndex: 10, transition: 'background 0.2s, transform 0.2s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.16)'; e.currentTarget.style.transform = 'rotate(90deg)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'rotate(0deg)'; }}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <line x1="2" y1="2" x2="14" y2="14" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-            <line x1="14" y1="2" x2="2" y2="14" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-        </button>
-
-        <div className="container mx-auto px-6 pt-24 pb-12 h-full flex flex-col overflow-y-auto">
+        <div className="container mx-auto px-6 pt-28 pb-12 h-full flex flex-col">
 
           {/* Nav links */}
           <nav className="flex-1">
